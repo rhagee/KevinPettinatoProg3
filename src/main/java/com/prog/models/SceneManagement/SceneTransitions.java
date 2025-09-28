@@ -5,93 +5,116 @@ import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
 public class SceneTransitions {
     private static final int ANIM_DURATION = 200;
 
-    public static void SlideLeft(SceneNames sceneName)
-    {
-        SlideLeft(SceneManager.get().getCurrentScene(),sceneName);
-    }
 
-    public static void SlideLeft(Scene scene , SceneNames sceneName)
+    private enum HorizontalDirection
     {
-        Parent newRoot = Scenes.GetRoot(sceneName);
-        if(newRoot == null)
+        LEFT(-1),
+        RIGHT(1);
+
+        private final int value;
+
+        HorizontalDirection(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
+    public static void NoTransition(SceneNames sceneName)
+    {
+        Parent newPage = Scenes.GetRoot(sceneName);
+        if(newPage == null)
         {
             System.err.println("Can't slide root due to wrong or not found scene name");
             return;
         }
 
-        SlideLeft(scene,newRoot);
+        NoTransition(newPage);
+        SceneManager.get().SetWindowTitle(Scenes.GetTitle(sceneName));
     }
 
-    public static void SlideLeft(Scene scene, Parent newRoot) {
-        if(scene == null || newRoot == null)
+    public static void NoTransition(Parent newPage) {
+        if(newPage == null)
         {
             System.err.println("Error Trying sliding scene , scene or root value is null");
             return;
         }
-        Parent oldRoot = scene.getRoot();
-        double width = scene.getWidth();
 
-        // Start newRoot off-screen (to the right)
-        newRoot.translateXProperty().set(width);
+        Parent oldPage = SceneManager.get().ActivePage;
+        Pane root = SceneManager.get().getMain();
 
-        // Container holding both old and new
-        StackPane container = new StackPane(oldRoot, newRoot);
-        scene.setRoot(container);
+        if(oldPage != null)
+        {
+            root.getChildren().remove(oldPage);
+        }
 
-        // Transition: old slides left, new slides in
-        TranslateTransition oldSlide = GetHorizontalTranslate(oldRoot, -width);
-        TranslateTransition newSlide = GetHorizontalTranslate(newRoot,0);
-
-
-        ParallelTransition pt = new ParallelTransition(oldSlide, newSlide);
-        pt.setOnFinished(e -> {
-            // After animation, set newRoot as the real root
-            container.getChildren().clear();
-            scene.setRoot(newRoot);
-        });
-
-        pt.play();
+        root.getChildren().add(newPage);
+        SceneManager.get().ActivePage = newPage;
     }
 
-    public static void SlideRight(SceneNames sceneName)
+    public static void SlideLeft(SceneNames sceneName)
     {
-        SlideRight(SceneManager.get().getCurrentScene(),sceneName);
-    }
-
-    public static void SlideRight(Scene scene , SceneNames sceneName)
-    {
-        Parent newRoot = Scenes.GetRoot(sceneName);
-        if(newRoot == null)
+        Parent newPage = Scenes.GetRoot(sceneName);
+        if(newPage == null)
         {
             System.err.println("Can't slide root due to wrong or not found scene name");
             return;
         }
 
-        SlideRight(scene,newRoot);
+        SlideLeft(newPage);
+        SceneManager.get().SetWindowTitle(Scenes.GetTitle(sceneName));
     }
 
-    public static void SlideRight(Scene scene, Parent newRoot) {
-        Parent oldRoot = scene.getRoot();
-        double width = scene.getWidth();
+    public static void SlideLeft(Parent newPage) {
+        SlideHorizontal(newPage,HorizontalDirection.LEFT);
+    }
 
-        newRoot.translateXProperty().set(-width);
+    public static void SlideRight(SceneNames sceneName)
+    {
+        Parent newPage = Scenes.GetRoot(sceneName);
+        if(newPage == null)
+        {
+            System.err.println("Can't slide root due to wrong or not found scene name");
+            return;
+        }
 
-        StackPane container = new StackPane(oldRoot, newRoot);
-        scene.setRoot(container);
+        SlideRight(newPage);
+        SceneManager.get().SetWindowTitle(Scenes.GetTitle(sceneName));
+    }
 
-        TranslateTransition oldSlide = GetHorizontalTranslate(oldRoot,width);
-        TranslateTransition newSlide = GetHorizontalTranslate(newRoot,0);
+    public static void SlideRight(Parent newPage) {
+        SlideHorizontal(newPage,HorizontalDirection.RIGHT);
+    }
+
+    private static void SlideHorizontal(Parent newPage, HorizontalDirection dir)
+    {
+        Parent oldPage = SceneManager.get().ActivePage;
+        Pane root = SceneManager.get().getMain();
+        double width = root.getWidth();
+
+        newPage.translateXProperty().set(-width * dir.getValue());
+
+        StackPane container = new StackPane(oldPage, newPage);
+        root.getChildren().remove(oldPage);
+        root.getChildren().add(container);
+
+        TranslateTransition oldSlide = GetHorizontalTranslate(oldPage, width * dir.getValue());
+        TranslateTransition newSlide = GetHorizontalTranslate(newPage,0);
+
 
         ParallelTransition pt = new ParallelTransition(oldSlide, newSlide);
         pt.setOnFinished(e -> {
-            container.getChildren().clear();
-            scene.setRoot(newRoot);
+            root.getChildren().remove(container);
+            root.getChildren().add(newPage);
+            SceneManager.get().ActivePage = newPage;
         });
 
         pt.play();

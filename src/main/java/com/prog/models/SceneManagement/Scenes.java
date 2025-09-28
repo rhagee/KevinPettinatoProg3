@@ -18,6 +18,14 @@ public class Scenes {
         scenes.put(SceneNames.HOME, FromRoot("home.fxml"));
     }
 
+    private static final HashMap<SceneNames, String> sceneTitles = new HashMap<>();
+
+    static
+    {
+        sceneTitles.put(SceneNames.LOGIN, "Login");
+        sceneTitles.put(SceneNames.HOME,  "Home");
+    }
+
     private static String FromRoot(String path)
     {
         return UI_ROOT_PATH + path;
@@ -27,6 +35,8 @@ public class Scenes {
     {
         return scenes.get(name);
     }
+
+    public static String GetTitle(SceneNames name) { return sceneTitles.get(name); }
 
     public static Parent GetRoot(SceneNames name)
     {

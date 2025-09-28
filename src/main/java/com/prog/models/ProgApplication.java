@@ -12,5 +12,4 @@ public class ProgApplication extends Application {
         SceneManager.init(stage).start();
     }
 
-
 }

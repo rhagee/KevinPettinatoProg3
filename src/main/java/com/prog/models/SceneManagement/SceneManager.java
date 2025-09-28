@@ -1,20 +1,23 @@
 package com.prog.models.SceneManagement;
 
-import com.prog.models.ProgApplication;
+import com.prog.models.AlertManagement.AlertManager;
 import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.net.URL;
 
-//THIS IS A SINGLETON CLASS
 public class SceneManager {
     private static final String AppName = "SocketMailer";
 
-    private Scene scene;
     private final Stage stage;
+    private Scene scene;
+    private Pane root;
+    private Pane main;
+    private Pane absolute;
+    public Parent ActivePage;
 
     private static SceneManager INSTANCE;
 
@@ -38,40 +41,25 @@ public class SceneManager {
     public void start() {
         runFx(() -> {
             scene = LoadEntryScene();
-            if (scene == null) throw new IllegalStateException("Failed to load entry scene");
+            SceneTransitions.NoTransition(SceneNames.LOGIN);
             SetWindowTitle("Login");
-            SetAndShow();
+            stage.setScene(scene);
+            stage.show();
         });
     }
 
-    private Scene LoadEntryScene ()
+    private Scene LoadEntryScene()
     {
-        String path = Scenes.GetPath(SceneNames.LOGIN);
-        URL url = ProgApplication.class.getResource(path);
+        root = new StackPane();
+        main = new StackPane();
 
-        if(url == null)
-        {
-            System.err.println("Can't find URL for path "+path);
-            return null;
-        }
+        absolute = new StackPane();
+        absolute.setPickOnBounds(false);
 
-        try
-        {
-            FXMLLoader loader = new FXMLLoader(url);
-            return new Scene(loader.load(), 1024, 768);
-        }
-        catch(IOException e)
-        {
-            System.err.println("IOException LoadEntryScene : Impossibile caricare la scena al path "+path+" , URL ottenuto : "+url);
-            e.printStackTrace();
-            return null;
-        }
-    }
+        AlertManager.init(absolute).build();
 
-    private void SetAndShow()
-    {
-        stage.setScene(scene);
-        stage.show();
+        root.getChildren().addAll(main,absolute);
+        return new Scene(root, 1024, 768);
     }
 
     public Scene getCurrentScene() {
@@ -91,5 +79,15 @@ public class SceneManager {
     private static void runFx(Runnable r) {
         if (Platform.isFxApplicationThread()) r.run();
         else Platform.runLater(r);
+    }
+
+    public Pane getMain()
+    {
+        return main;
+    }
+
+    public Pane getAbsolute()
+    {
+        return absolute;
     }
 }
