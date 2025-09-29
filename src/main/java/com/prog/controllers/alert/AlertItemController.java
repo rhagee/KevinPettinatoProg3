@@ -3,7 +3,6 @@ package com.prog.controllers.alert;
 import com.prog.models.AlertManagement.AlertItem;
 import com.prog.models.AlertManagement.AlertType;
 import com.prog.utils.Colors;
-import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.Node;

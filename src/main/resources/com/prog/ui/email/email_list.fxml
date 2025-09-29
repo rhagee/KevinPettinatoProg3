@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.*?>
-
-
 <?import javafx.scene.layout.StackPane?>
+
 <ListView
         style="-fx-background-color: transparent; -fx-control-inner-background: transparent; -fx-border-color: transparent; -fx-padding: 10 10 10 10" StackPane.alignment="CENTER_LEFT"
         fx:id="emailList"

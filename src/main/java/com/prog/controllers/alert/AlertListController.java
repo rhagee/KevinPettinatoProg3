@@ -4,17 +4,14 @@ import com.prog.models.AlertManagement.AlertItem;
 import com.prog.models.AlertManagement.AlertManager;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 public class AlertListController {

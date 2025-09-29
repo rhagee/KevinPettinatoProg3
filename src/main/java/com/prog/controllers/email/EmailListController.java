@@ -1,8 +1,6 @@
 package com.prog.controllers.email;
 
 import com.prog.models.EmailManagement.EmailItem;
-import com.prog.models.EmailManagement.EmailListItem;
-import com.prog.models.AlertManagement.AlertManager;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 
