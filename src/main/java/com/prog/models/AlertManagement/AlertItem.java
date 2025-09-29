@@ -39,6 +39,7 @@ public class AlertItem {
             case SUCCESS -> MaterialDesign.MDI_CHECK_CIRCLE;
             case WARN -> MaterialDesign.MDI_ALERT;
             case INFO -> MaterialDesign.MDI_INFORMATION;
+            case WARMUP -> MaterialDesign.MDI_BORDER_NONE;
         };
     }
 

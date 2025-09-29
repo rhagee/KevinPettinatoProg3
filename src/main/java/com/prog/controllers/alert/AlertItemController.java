@@ -27,6 +27,7 @@ public class AlertItemController {
                             case SUCCESS -> GetBackgroundColor(Colors.GREEN);
                             case WARN -> GetBackgroundColor(Colors.YELLOW);
                             case INFO -> GetBackgroundColor(Colors.BLUE);
+                            case WARMUP -> "-fx-opacity : 0;";
                         },
                         item.typeProperty()
                 ));

@@ -51,12 +51,18 @@ public class AlertManager {
             FXMLLoader loader = new FXMLLoader(ProgApplication.class.getResource("/com/prog/ui/alert/alert_list.fxml"));
             Parent listRoot = loader.load();
             root.getChildren().add(listRoot);
+            WarmupAlertItem();
         }
         catch(IOException e)
         {
             System.err.println("Errore durante il caricamento dell'alertList");
             e.printStackTrace();
         }
+    }
+
+    private void WarmupAlertItem()
+    {
+        Platform.runLater(() -> { String id = add("","",AlertType.WARMUP); Platform.runLater(() -> {forceRemove(id);});});
     }
 
     public String add(String title, String msg, AlertType type)
