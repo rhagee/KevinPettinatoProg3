@@ -1,0 +1,28 @@
+.alert-item{
+    -fx-padding: 8;
+    -fx-background-radius: 8;
+    -fx-border-color: rgba(0,0,0,0.5);
+    -fx-border-radius: 8;
+}
+
+.alert-title{
+    -fx-font-weight: 700;
+    -fx-text-fill: rgba(0,0,0,0.9);
+    -fx-font-size: 14;
+}
+
+.alert-loader{
+    -fx-progress-color: #999999; /* color of arc */
+    -fx-background-color: transparent;
+}
+
+.alert-icon{
+    -fx-font-size: 24;
+    -fx-opacity: 0.9;
+}
+
+.alert-text{
+    -fx-font-weight: 600;
+    -fx-text-fill: rgba(0,0,0,0.8);
+    -fx-font-size : 12;
+}

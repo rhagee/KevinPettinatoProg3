@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Pane?>
+<VBox
+        style="-fx-background-color: null; -fx-control-inner-background: null; -fx-border-color: null; -fx-padding: 10 10 10 10"
+        StackPane.alignment="CENTER_LEFT"
+        alignment="BOTTOM_CENTER"
+        fx:id="alertListContainer"
+        maxWidth="300"
+        pickOnBounds="false"
+        xmlns="http://javafx.com/javafx/17.0.12"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="com.prog.controllers.alert.AlertListController"
+        spacing="8">
+    <Pane VBox.vgrow="ALWAYS" pickOnBounds="false" mouseTransparent="true"
+    />
+</VBox>

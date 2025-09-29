@@ -1,7 +1,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 <HBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.prog.controllers.AlertItemController" spacing="8" fx:id="root">
+      fx:controller="com.prog.controllers.email.EmailItemController" spacing="8" fx:id="root">
     <VBox>
         <Label fx:id="title" styleClass="title"/>
         <Label fx:id="message" wrapText="true"/>

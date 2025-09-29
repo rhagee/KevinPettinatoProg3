@@ -14,8 +14,8 @@ public class Scenes {
 
     static
     {
-        scenes.put(SceneNames.LOGIN, FromRoot("login.fxml"));
-        scenes.put(SceneNames.HOME, FromRoot("home.fxml"));
+        scenes.put(SceneNames.LOGIN, FromRoot("pages/login.fxml"));
+        scenes.put(SceneNames.HOME, FromRoot("pages/home.fxml"));
     }
 
     private static final HashMap<SceneNames, String> sceneTitles = new HashMap<>();
