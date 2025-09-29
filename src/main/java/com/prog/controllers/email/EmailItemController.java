@@ -1,19 +1,19 @@
-package com.prog.controllers;
+package com.prog.controllers.email;
 
-import com.prog.models.AlertManagement.AlertItem;
+import com.prog.models.EmailManagement.EmailItem;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 
-public class AlertItemController {
+public class EmailItemController {
 
     @FXML private HBox root;
     @FXML private Label title, message;
 
-    private AlertItem item;
+    private EmailItem item;
 
-    public void bind(AlertItem item)
+    public void bind(EmailItem item)
     {
         if(this.item != null)
         {

@@ -16,13 +16,12 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public class AlertManager {
-
     private final double DEFAULT_ALERT_TIME = 5;
-    private final Pane root;private static AlertManager INSTANCE;
+    private final Pane root;
+    private static AlertManager INSTANCE;
     private final ObservableList<AlertItem> items = FXCollections.observableArrayList();
 
-    private HashMap<String,AlertItem> itemsMap = new HashMap<>();
-
+    private HashMap<String, AlertItem> itemsMap = new HashMap<>();
     public ObservableList<AlertItem> getItems()
     {
         return items;
@@ -49,12 +48,9 @@ public class AlertManager {
     {
         try
         {
-            FXMLLoader loader = new FXMLLoader(ProgApplication.class.getResource("/com/prog/ui/alertList.fxml"));
+            FXMLLoader loader = new FXMLLoader(ProgApplication.class.getResource("/com/prog/ui/alert/alert_list.fxml"));
             Parent listRoot = loader.load();
             root.getChildren().add(listRoot);
-
-            String id = add("","",AlertType.WARMUP);
-            Platform.runLater(() -> {forceRemove(id);});
         }
         catch(IOException e)
         {

@@ -1,22 +1,19 @@
-package com.prog.models.AlertManagement;
+package com.prog.models.EmailManagement;
 
-import com.prog.controllers.AlertItemController;
+import com.prog.controllers.email.EmailItemController;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.ListCell;
 
 import java.io.IOException;
 
-public class AlertListItem extends ListCell<AlertItem> {
+public class EmailListItem extends ListCell<EmailItem> {
     private final Node rootNode;
-    {
-        setScaleY(-1); // flip cell back
-    }
-    private AlertItemController controller;
+    private EmailItemController controller;
 
-    public AlertListItem() {
+    public EmailListItem() {
         try {
-            FXMLLoader fxml = new FXMLLoader(getClass().getResource("/com/prog/ui/alertItem.fxml"));
+            FXMLLoader fxml = new FXMLLoader(getClass().getResource("/com/prog/ui/email/email_item.fxml"));
             rootNode = fxml.load();
             controller = fxml.getController();
         } catch (IOException e) {
@@ -25,7 +22,7 @@ public class AlertListItem extends ListCell<AlertItem> {
     }
 
     @Override
-    protected void updateItem(AlertItem item, boolean empty) {
+    protected void updateItem(EmailItem item, boolean empty) {
         super.updateItem(item, empty);
         if(empty || item == null)
         {

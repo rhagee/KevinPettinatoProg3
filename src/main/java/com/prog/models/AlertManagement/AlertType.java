@@ -1,4 +1,4 @@
 package com.prog.models.AlertManagement;
 
-public enum AlertType { WARMUP, INFO, WARN, ERROR };
+public enum AlertType { INFO, SUCCESS, WARN, ERROR };
 

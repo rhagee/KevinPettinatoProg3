@@ -1,0 +1,12 @@
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<HBox stylesheets="@styles/alert_item.css" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.prog.controllers.alert.AlertItemController" spacing="8" fx:id="root" styleClass="alert-item">
+    <FontIcon iconLiteral="fa-circle-thin" iconColor="red" fx:id="icon"/>
+    <VBox>
+        <Label fx:id="title" styleClass="alert-title" />
+        <Label fx:id="message" wrapText="true" styleClass="alert-text"/>
+    </VBox>
+    <Pane HBox.hgrow="ALWAYS"/>
+</HBox>

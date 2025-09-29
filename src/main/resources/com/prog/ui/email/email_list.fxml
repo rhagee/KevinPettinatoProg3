@@ -5,12 +5,12 @@
 
 <?import javafx.scene.layout.StackPane?>
 <ListView
-        style="-fx-scale-y: -1; -fx-background-color: transparent; -fx-control-inner-background: transparent; -fx-border-color: transparent; -fx-padding: 10 10 10 10" StackPane.alignment="CENTER_LEFT"
-        fx:id="alertList"
+        style="-fx-background-color: transparent; -fx-control-inner-background: transparent; -fx-border-color: transparent; -fx-padding: 10 10 10 10" StackPane.alignment="CENTER_LEFT"
+        fx:id="emailList"
         maxWidth="300"
         nodeOrientation="LEFT_TO_RIGHT"
         pickOnBounds="false"
         xmlns="http://javafx.com/javafx/17.0.12"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="com.prog.controllers.AlertListController">
+        fx:controller="com.prog.controllers.email.EmailListController">
 </ListView>
