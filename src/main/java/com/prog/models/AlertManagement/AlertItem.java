@@ -8,6 +8,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.javafx.Icon;
 import org.kordamp.ikonli.materialdesign.MaterialDesign;
@@ -18,7 +19,7 @@ public class AlertItem {
     private final StringProperty title = new SimpleStringProperty("");
     private final StringProperty message = new SimpleStringProperty("");
     private final ObjectProperty<AlertType> type = new SimpleObjectProperty<>(AlertType.INFO);
-    private final ObjectProperty<FontIcon> icon = new SimpleObjectProperty<>(null);
+    private final ObjectProperty<Ikon> icon = new SimpleObjectProperty<>(null);
     private final PauseTransition timer;
 
     public AlertItem(String id, String title, String message, AlertType type, PauseTransition timer) {
@@ -26,18 +27,19 @@ public class AlertItem {
         this.title.set(title);
         this.message.set(message);
         this.type.set(type);
-
-        FontIcon tempIcon = new FontIcon();
-        switch(type)
-        {
-            case ERROR -> {tempIcon = new FontIcon(MaterialDesign.MDI_CLOSE);}
-            case SUCCESS -> {tempIcon = new FontIcon(MaterialDesign.MDI_CHECK);}
-            case WARN ->{tempIcon = new FontIcon(MaterialDesign.MDI_ALERT);}
-            case INFO -> {tempIcon = new FontIcon(MaterialDesign.MDI_INFORMATION);}
-        }
-        this.icon.setValue(tempIcon);
-
+        this.icon.setValue(getIconCode(type));
         this.timer = timer;
+    }
+
+    private Ikon getIconCode(AlertType type)
+    {
+        return switch(type)
+        {
+            case ERROR -> MaterialDesign.MDI_CLOSE_CIRCLE;
+            case SUCCESS -> MaterialDesign.MDI_CHECK_CIRCLE;
+            case WARN -> MaterialDesign.MDI_ALERT;
+            case INFO -> MaterialDesign.MDI_INFORMATION;
+        };
     }
 
     public String getId() { return id; }
@@ -48,6 +50,6 @@ public class AlertItem {
 
     public PauseTransition getTimer() { return timer; }
 
-    public ObjectProperty<FontIcon> iconProperty() {return icon;}
+    public ObjectProperty<Ikon> iconProperty() {return icon;}
 
 }

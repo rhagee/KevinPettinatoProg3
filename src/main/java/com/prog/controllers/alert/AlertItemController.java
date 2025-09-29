@@ -18,13 +18,6 @@ public class AlertItemController {
 
     public void init(AlertItem item)
     {
-        if(this.item != null)
-        {
-            title.textProperty().unbind();
-            root.styleProperty().unbind();
-            message.textProperty().unbind();
-        }
-
         this.item = item;
         title.textProperty().bind(item.titleProperty());
         message.textProperty().bind(item.messageProperty());

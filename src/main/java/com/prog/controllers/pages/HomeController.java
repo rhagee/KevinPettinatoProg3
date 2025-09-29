@@ -11,9 +11,6 @@ public class HomeController {
     public void OnLogout()
     {
         SceneTransitions.SlideRight(SceneNames.LOGIN);
-
         AlertManager.get().add("Arrivederci","Logout avvenuto con successo!", AlertType.ERROR);
-        AlertManager.get().add("INFO","Logout avvenuto con successo!", AlertType.INFO);
-        AlertManager.get().add("INFO","Logout avvenuto con successo!", AlertType.WARN);
     }
 }
