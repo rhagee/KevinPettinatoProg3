@@ -11,6 +11,11 @@
     -fx-font-size: 14;
 }
 
+.alert-loader{
+    -fx-progress-color: #999999; /* color of arc */
+    -fx-background-color: transparent;
+}
+
 .alert-icon{
     -fx-font-size: 24;
     -fx-opacity: 0.9;

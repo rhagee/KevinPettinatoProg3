@@ -1,17 +1,10 @@
 package com.prog.models.AlertManagement;
 
-import com.prog.models.AlertManagement.AlertType;
 import javafx.animation.PauseTransition;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import org.kordamp.ikonli.Ikon;
-import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.javafx.Icon;
-import org.kordamp.ikonli.materialdesign.MaterialDesign;
 
 public class AlertItem {
     private final String id;
@@ -19,28 +12,14 @@ public class AlertItem {
     private final StringProperty title = new SimpleStringProperty("");
     private final StringProperty message = new SimpleStringProperty("");
     private final ObjectProperty<AlertType> type = new SimpleObjectProperty<>(AlertType.INFO);
-    private final ObjectProperty<Ikon> icon = new SimpleObjectProperty<>(null);
-    private final PauseTransition timer;
+    private PauseTransition timer;
 
     public AlertItem(String id, String title, String message, AlertType type, PauseTransition timer) {
         this.id = id;
         this.title.set(title);
         this.message.set(message);
         this.type.set(type);
-        this.icon.setValue(getIconCode(type));
         this.timer = timer;
-    }
-
-    private Ikon getIconCode(AlertType type)
-    {
-        return switch(type)
-        {
-            case ERROR -> MaterialDesign.MDI_CLOSE_CIRCLE;
-            case SUCCESS -> MaterialDesign.MDI_CHECK_CIRCLE;
-            case WARN -> MaterialDesign.MDI_ALERT;
-            case INFO -> MaterialDesign.MDI_INFORMATION;
-            case WARMUP -> MaterialDesign.MDI_BORDER_NONE;
-        };
     }
 
     public String getId() { return id; }
@@ -50,7 +29,27 @@ public class AlertItem {
     public ObjectProperty<AlertType> typeProperty() { return type; }
 
     public PauseTransition getTimer() { return timer; }
+    public void setTimer(PauseTransition timer) { this.timer = timer;}
 
-    public ObjectProperty<Ikon> iconProperty() {return icon;}
+    public void StopTimer()
+    {
+        if(timer != null)
+        {
+            timer.stop();
+        }
+    }
+
+    public void StartTimer() {
+        if(timer != null)
+        {
+            timer.play();
+        }
+    }
+
+    public void RestartTimer()
+    {
+            StopTimer();
+            StartTimer();
+    }
 
 }

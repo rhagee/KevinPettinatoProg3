@@ -4,6 +4,7 @@
 <HBox stylesheets="@styles/alert_item.css" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.prog.controllers.alert.AlertItemController" spacing="8" fx:id="root" styleClass="alert-item" alignment="CENTER">
     <FontIcon iconColor="black" fx:id="icon" styleClass="alert-icon"/>
+    <ProgressIndicator maxWidth="20" maxHeight="20" fx:id="loader" styleClass="alert-loader"/>
     <VBox>
         <Label fx:id="title" styleClass="alert-title" />
         <Label fx:id="message" wrapText="true" styleClass="alert-text"/>

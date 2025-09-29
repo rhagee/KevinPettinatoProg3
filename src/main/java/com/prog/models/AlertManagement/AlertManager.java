@@ -67,11 +67,28 @@ public class AlertManager {
 
     public String add(String title, String msg, AlertType type)
     {
+        return add(title,msg,type,DEFAULT_ALERT_TIME);
+    }
+
+    public String add(String title, String msg, AlertType type, double time)
+    {
         String id = UUID.randomUUID().toString();
-        PauseTransition timer = getPauseTransition(id,DEFAULT_ALERT_TIME);
+
+        PauseTransition timer;
+        if(type != AlertType.LOADING)
+        {
+            timer = getPauseTransition(id,time);
+        } else {
+            timer = null;
+        }
+
         AlertItem item = new AlertItem(id,title,msg,type,timer);
 
-        Platform.runLater(()-> {items.add(item); itemsMap.put(id,item); timer.play();});
+        Platform.runLater(()-> {
+            items.add(item);
+            itemsMap.put(id,item);
+            item.StartTimer();
+           });
         return id;
     }
 
@@ -83,17 +100,14 @@ public class AlertManager {
 
     private void restartDismiss(AlertItem item)
     {
-       Platform.runLater(() -> {
-        item.getTimer().stop();
-        item.getTimer().play();
-       });
+       Platform.runLater(item::RestartTimer);
     }
 
 
     public void forceRemove(String id)
     {
         AlertItem item = itemsMap.get(id);
-        item.getTimer().stop();
+        item.StopTimer();
 
         remove(id);
     }
@@ -133,10 +147,21 @@ public class AlertManager {
 
     public void UpdateItem(String id, String title, String message, AlertType type)
     {
+        UpdateItem(id,title,message,type,DEFAULT_ALERT_TIME);
+    }
+
+
+    public void UpdateItem(String id, String title, String message, AlertType type, double time)
+    {
         update(id, item -> {
             item.titleProperty().setValue(title);
             item.messageProperty().setValue(message);
             item.typeProperty().setValue(type);
+            if(type != AlertType.LOADING)
+            {
+                PauseTransition timer = getPauseTransition(id,time);
+                item.setTimer(timer);
+            }
         });
     }
 
