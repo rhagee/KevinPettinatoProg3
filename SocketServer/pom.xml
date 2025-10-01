@@ -4,16 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.prog</groupId>
-    <artifactId>KevinPettinato</artifactId>
+    <groupId>com.kevin_pettinato.prog3</groupId>
+    <artifactId>SocketServer</artifactId>
     <version>1.0.0</version>
-    <packaging>pom</packaging>
-    <name>KevinPettinato</name>
-    <modules>
-        <module>Common</module>
-        <module>SocketClient</module>
-        <module>SocketServer</module>
-    </modules>
+    <name>SocketServer</name>
+    <packaging>jar</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -31,7 +26,11 @@
             <artifactId>javafx-fxml</artifactId>
             <version>22.0.1</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.prog</groupId>
+            <artifactId>Common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -43,16 +42,6 @@
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.kordamp.ikonli</groupId>
-            <artifactId>ikonli-javafx</artifactId>
-            <version>12.4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kordamp.ikonli</groupId>
-            <artifactId>ikonli-materialdesign-pack</artifactId>
-            <version>12.4.0</version>
         </dependency>
     </dependencies>
 
@@ -76,9 +65,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>
-                                com.prog.models.ProgApplication
-                            </mainClass>
+                            <mainClass>com.kevin_pettinato.prog3.socketserver/com.server.HelloApplication</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
