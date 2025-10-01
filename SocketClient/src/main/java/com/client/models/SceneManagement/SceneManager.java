@@ -1,13 +1,13 @@
 package com.client.models.SceneManagement;
 
 import com.client.models.AlertManagement.AlertManager;
+import com.client.models.BackendManagement.BackendManager;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-
 
 public class SceneManager {
     private static final String AppName = "SocketMailer";
@@ -44,6 +44,9 @@ public class SceneManager {
             SetWindowTitle("Login");
             stage.setScene(scene);
             stage.show();
+
+            //Start it after UI is ready to give feedbacks
+            StartBackendThread();
         });
     }
 
@@ -58,6 +61,10 @@ public class SceneManager {
 
         root.getChildren().addAll(main, absolute);
         return new Scene(root, 1024, 768);
+    }
+
+    private void StartBackendThread() {
+        new Thread(BackendManager.INSTANCE::CreateConnection).start();
     }
 
     public Scene getCurrentScene() {
