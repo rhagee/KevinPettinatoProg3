@@ -9,6 +9,40 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+/*
+UI STRUCTURE
+
+     STAGE-----+
+               |
+               ROOT-----+
+                        |
+                        MAIN ------------+
+                        |                |
+                        |                Actual showed page
+                        |
+                        ABSOLUTE --------+
+                                         |
+                                         Alerts
+                                         |
+                                         Modals
+*/
+
+
+/*
+ Considerations :
+
+ I think this can be improved by keeping "old scenes" referenced in a dictionary and just re-call an Initialize method on their controllers
+ that can extends an actual abstract class (so we call Initialize on the Abstract).
+ This would improve performance since we don't ALWAYS re-load the DOM elements from file but keep them.
+
+ This should be done considering Ram usage since a lot of mapped pages might end up using too much Ram space while not-used.
+ Might work as an LRU Cache with fixed size to optimize navigation time.
+
+ Decision : Will not implement any of that since might be out of the project's scope but might be interesting.
+            Definitely something I would investigate for scalability on a big software.
+ */
+
+//A Singleton class that will handle the "root" level navigation and keep track of elements in the main UI setup.
 public class SceneManager {
     private static final String AppName = "SocketMailer";
 
