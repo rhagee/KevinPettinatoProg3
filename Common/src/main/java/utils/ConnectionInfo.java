@@ -1,5 +1,6 @@
 package utils;
 
+//Connection Setup Common
 public class ConnectionInfo {
 
     public static String SERVER_IP = "localhost";

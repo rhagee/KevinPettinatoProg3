@@ -55,6 +55,8 @@ public class SceneManager {
 
     private static SceneManager INSTANCE;
 
+    private Thread backendThread;
+
     public static SceneManager get() {
         if (INSTANCE == null) throw new IllegalStateException("SceneManager not initialized");
         return INSTANCE;
@@ -98,7 +100,8 @@ public class SceneManager {
     }
 
     private void StartBackendThread() {
-        new Thread(BackendManager.INSTANCE::CreateConnection).start();
+        backendThread = new Thread(BackendManager.INSTANCE);
+        backendThread.start();
     }
 
     public Scene getCurrentScene() {
