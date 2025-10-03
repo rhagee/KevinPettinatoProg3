@@ -61,7 +61,7 @@ public class MailHandlerSocket extends Thread {
 
     }
 
-    private void HandleRequest(Request request) {
+    private void HandleRequest(Request<?> request) {
         RequestCodes code = request.getCode();
         switch (code) {
             case RequestCodes.AUTH:
