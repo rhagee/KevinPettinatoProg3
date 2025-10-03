@@ -4,6 +4,8 @@ import com.server.models.LogHandler;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -27,6 +29,25 @@ public class UIController {
         var logger = Logger.getLogger("");
         logger.addHandler(handler);
 
+        scrollPane.addEventFilter(ScrollEvent.ANY, event -> {
+            Platform.runLater(() -> {
+                System.out.println("SCROLL FINISHED");
+                autoScroll = scrollPane.getVvalue() >= 0.999;
+            });
+        });
+
+        scrollPane.addEventFilter(MouseEvent.MOUSE_DRAGGED, event -> {
+            Platform.runLater(() -> {
+                System.out.println("DRAG FINISHED");
+                autoScroll = scrollPane.getVvalue() >= 0.999;
+            });
+        });
+
+        scrollPane.vvalueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.doubleValue() >= 0.999) {
+                autoScroll = true;
+            }
+        });
 
         handler.getConsoleTextProperty().addListener((observable, oldValue, newValue) -> {
             Text text = new Text(newValue);
