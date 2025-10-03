@@ -1,7 +1,10 @@
 package com.client.models.BackendManagement;
 
+import com.client.models.AlertManagement.AlertManager;
 import communication.Request;
 import communication.Response;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import utils.ConnectionInfo;
 import utils.RequestCodes;
 
@@ -16,7 +19,7 @@ public enum BackendManager implements Runnable {
     INSTANCE;
 
     public static final int MAX_RETRY = 5;
-    private int retryAttempts = 0;
+    private IntegerProperty retryAttempts = new SimpleIntegerProperty(0);
 
     private final BackendEventReceiver eventHandler = new BackendEventReceiver();
     private Thread eventThread;
@@ -27,12 +30,17 @@ public enum BackendManager implements Runnable {
 
     private ExecutorService writerExecutor;
 
+    public IntegerProperty getRetryAttempts() {
+        return retryAttempts;
+    }
+
     @Override
     public void run() {
         CreateConnection();
     }
 
     public synchronized void CreateConnection() {
+        System.out.println("Creating connection...");
         try {
             if (isConnectionSafe()) {
                 return;
@@ -55,10 +63,12 @@ public enum BackendManager implements Runnable {
             eventThread.start();
 
             //UI CALL (Close Retry Dialog)
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             System.err.println("Fatal Error : Exception while connecting to back-end");
             e.printStackTrace();
             ConnectionFailed();
+        } catch (InterruptedException e) {
+            System.out.println("BackendManager connection attempts interrupted while in sleep");
         }
     }
 
@@ -68,18 +78,25 @@ public enum BackendManager implements Runnable {
             return true;
         }
 
-        //Try connecting
         boolean connected = false;
-        while (!connected && retryAttempts < MAX_RETRY) {
-            connected = TryConnecting();
-            retryAttempts++;
-            if (!connected) {
-                Thread.sleep(1000L * retryAttempts); //Exponential backoff
+        connected = TryConnecting();
+        if (!connected) {
+            System.out.println("Failed connecting to the server - RETRY LOOP");
+            AlertManager.get().OnConnectionDropped();
+
+            while (!connected && retryAttempts.getValue() <= MAX_RETRY) {
+                retryAttempts.setValue(retryAttempts.getValue() + 1);
+                connected = TryConnecting();
+                if (!connected && retryAttempts.getValue() <= MAX_RETRY) {
+                    Thread.sleep(500L * retryAttempts.getValue()); //Exponential backoff
+                }
             }
         }
+        System.out.println("Connection " + (connected ? "Success" : "Failed") + " After " + retryAttempts.getValue().toString() + " attempts");
 
         //Reset attempts and return
-        retryAttempts = 0;
+        retryAttempts.setValue(0);
+
         return connected;
     }
 
@@ -96,25 +113,37 @@ public enum BackendManager implements Runnable {
     public synchronized void ClearConnection() {
         try {
             if (in != null) {
+                System.out.println("Closing Input Stream");
                 in.close();
             }
 
             if (out != null) {
+                System.out.println("Closing Output Stream");
                 out.close();
             }
 
+
             if (socketConnection != null) {
+                System.out.println("Closing Socket");
                 socketConnection.close();
             }
 
+
             if (eventThread != null) {
+
+                System.out.println("Interrupting thread");
                 //If anything was listening fail them gracefully with IOException
                 eventHandler.failAllPending(new IOException("Connection dropped"));
                 eventThread.interrupt();
                 eventThread = null;
             }
 
-            writerExecutor.shutdown();
+
+            System.out.println("Shutdown writerExecutor");
+            if (writerExecutor != null) {
+                writerExecutor.shutdown();
+            }
+
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -122,7 +151,7 @@ public enum BackendManager implements Runnable {
 
     //This is when we fail connecting multiple times (5)
     public synchronized void ConnectionFailed() {
-        //UI CALL (Show Connection Failed - Close or Retry)
+        AlertManager.get().OnConnectionFailed();
     }
 
     //If connection drops we clear the connection to ensure a new one will be established
@@ -130,7 +159,6 @@ public enum BackendManager implements Runnable {
     //Start create connection process
     public synchronized void ConnectionDropped() {
         ClearConnection();
-        //UI CALL (Show Connection attempting)
         CreateConnection();
     }
 

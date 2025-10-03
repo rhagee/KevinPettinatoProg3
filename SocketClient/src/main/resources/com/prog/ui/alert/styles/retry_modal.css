@@ -1,0 +1,69 @@
+
+.modal-container {
+    -fx-font-family: "Poppins";
+    -fx-background-color: rgba(0, 0, 0, 0.5);
+}
+
+
+.failed-modal {
+    -fx-background-color: rgba(220, 220, 220, 1);
+    -fx-max-width: 420;
+    -fx-max-height: 150;
+    -fx-padding: 8;
+    -fx-background-radius: 8;
+}
+
+.modal-title {
+    -fx-font-size: 24;
+    -fx-font-weight: 800;
+    -fx-text-fill: #252525;
+}
+
+.modal-icon {
+    -fx-font-size: 24;
+}
+
+.modal-desc {
+    -fx-font-size: 16;
+    -fx-wrap-text: true;
+    -fx-max-width: 250;
+    -fx-text-alignment: center;
+    -fx-text-fill: rgba(0, 0, 0, 0.7);
+    -fx-font-weight: 600;
+}
+
+.close-btn {
+    -fx-background-color: #b64c43;
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
+    -fx-background-radius: 8;
+    -fx-font-size: 16;
+    -fx-font-weight: 800;
+    -fx-min-width: 150;
+}
+
+.close-btn:hover {
+    -fx-cursor: hand;
+    -fx-background-color: #a3413a;
+    -fx-text-fill: rgba(255, 255, 255, 1);
+}
+
+.retry-btn {
+    -fx-background-color: #3f86c6;
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
+    -fx-background-radius: 8;
+    -fx-font-size: 16;
+    -fx-font-weight: 800;
+    -fx-min-width: 150;
+}
+
+.retry-btn:hover {
+    -fx-cursor: hand;
+    -fx-background-color: #306797;
+    -fx-text-fill: rgba(255, 255, 255, 1);
+}
+
+.alert-loader {
+    -fx-progress-color: #252525; /* color of arc */
+    -fx-background-color: transparent;
+}
+

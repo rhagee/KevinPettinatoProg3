@@ -79,10 +79,11 @@ public class SceneManager {
             SceneTransitions.NoTransition(SceneNames.LOGIN);
             SetWindowTitle("Login");
             stage.setScene(scene);
+            stage.setResizable(false);
             stage.show();
 
             //Start it after UI is ready to give feedbacks
-            StartBackendThread();
+            TryConnectToBackend();
         });
     }
 
@@ -99,7 +100,7 @@ public class SceneManager {
         return new Scene(root, 1024, 768);
     }
 
-    private void StartBackendThread() {
+    public void TryConnectToBackend() {
         backendThread = new Thread(BackendManager.INSTANCE);
         backendThread.start();
     }
@@ -127,5 +128,13 @@ public class SceneManager {
 
     public Pane getAbsolute() {
         return absolute;
+    }
+
+
+    public void StopBackendThread() {
+        if (backendThread != null && backendThread.isAlive()) {
+            System.out.println("Stopping backend thread");
+            backendThread.interrupt();
+        }
     }
 }
