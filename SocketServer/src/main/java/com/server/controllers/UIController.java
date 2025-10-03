@@ -31,14 +31,12 @@ public class UIController {
 
         scrollPane.addEventFilter(ScrollEvent.ANY, event -> {
             Platform.runLater(() -> {
-                System.out.println("SCROLL FINISHED");
                 autoScroll = scrollPane.getVvalue() >= 0.999;
             });
         });
 
         scrollPane.addEventFilter(MouseEvent.MOUSE_DRAGGED, event -> {
             Platform.runLater(() -> {
-                System.out.println("DRAG FINISHED");
                 autoScroll = scrollPane.getVvalue() >= 0.999;
             });
         });
@@ -50,9 +48,11 @@ public class UIController {
         });
 
         handler.getConsoleTextProperty().addListener((observable, oldValue, newValue) -> {
-            Text text = new Text(newValue);
-            text.setFill(Color.WHITE);
-            console.getChildren().add(text);
+            Platform.runLater(() -> {
+                Text text = new Text(newValue);
+                text.setFill(Color.WHITE);
+                console.getChildren().add(text);
+            });
         });
 
 
@@ -70,7 +70,7 @@ public class UIController {
     @FXML
     private void RandomPrint() {
         handler.AddManually("Ciao " + n + "\n");
-        n++;
+
     }
 
 }

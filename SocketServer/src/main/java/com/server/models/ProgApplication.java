@@ -1,19 +1,19 @@
 package com.server.models;
 
+import com.server.models.threads.SocketHandler;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import utils.ConnectionInfo;
 
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ProgApplication extends Application {
-    private static final Logger LOGGER = Logger.getLogger("SETUP");
+    private static final Logger LOGGER = Logger.getLogger("INIT");
 
+    private SocketHandler socketHandler;
+    private Thread handlerThread;
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -24,13 +24,16 @@ public class ProgApplication extends Application {
         stage.setResizable(false);
         stage.show();
 
-        Platform.runLater(() -> {
-            LOGGER.log(Level.INFO, "Server will listen on " + ConnectionInfo.SERVER_IP + ":" + ConnectionInfo.SERVER_PORT);
-            LOGGER.log(Level.INFO, "Server will listen on " + ConnectionInfo.SERVER_IP + ":" + ConnectionInfo.SERVER_PORT);
-            LOGGER.log(Level.INFO, "Server will listen on " + ConnectionInfo.SERVER_IP + ":" + ConnectionInfo.SERVER_PORT);
-            LOGGER.log(Level.INFO, "Server will listen on " + ConnectionInfo.SERVER_IP + ":" + ConnectionInfo.SERVER_PORT);
-            LOGGER.log(Level.INFO, "LAST");
-        });
+        socketHandler = new SocketHandler();
+        handlerThread = new Thread(socketHandler);
+        handlerThread.start();
 
+        //LOGGER.log(Level.INFO, "Server will listen on " + ConnectionInfo.SERVER_IP + ":" + ConnectionInfo.SERVER_PORT);
+
+    }
+
+    @Override
+    public void stop() {
+        handlerThread.interrupt();
     }
 }
