@@ -7,5 +7,6 @@ public enum ResponseCodes {
     UNAUTHORIZED,
     FORBIDDEN,
     NOTFOUND,
-    UNHANDLED
+    UNHANDLED,
+    BADPARAM
 }
