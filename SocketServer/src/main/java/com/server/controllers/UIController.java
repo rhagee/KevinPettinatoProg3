@@ -65,12 +65,4 @@ public class UIController {
         });
     }
 
-    private int n = 0;
-
-    @FXML
-    private void RandomPrint() {
-        handler.AddManually("Ciao " + n + "\n");
-
-    }
-
 }

@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.TextFlow?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Button?>
 <VBox alignment="CENTER" xmlns:fx="http://javafx.com/fxml" spacing="24"
       stylesheets="@home.css"
       style="padding:20;-fx-background-color:#1f1f1f"
@@ -15,5 +13,4 @@
                 style="-fx-padding: 10;-fx-background-color:#121212;-fx-background-radius: 8">
         <TextFlow fx:id="console"/>
     </ScrollPane>
-    <Button text="Print" onAction="#RandomPrint"/>
 </VBox>

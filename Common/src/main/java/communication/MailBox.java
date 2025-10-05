@@ -65,6 +65,10 @@ public class MailBox implements Serializable {
         return addToChunk(sentBucket);
     }
 
+    public void TempReceivedSetter(LinkedHashMap<UUID, Integer> temp) {
+        receivedBucket = temp;
+    }
+
     public UUID addReceived() {
         IncrementReceived();
         IncrementToRead();
@@ -98,28 +102,63 @@ public class MailBox implements Serializable {
     }
 
     private List<ChunkRange> getChunks(int startElementIndex, int elements, LinkedHashMap<UUID, Integer> bucket) {
+        //Safety Clamp (avoid negative values)
+        startElementIndex = Math.max(0, startElementIndex);
+        elements = Math.max(0, elements);
+
+        //Initialization
         int currElements = elements;
         int accumulator = 0;
         List<ChunkRange> result = new ArrayList<>();
+
+        //Early return in case of 0 elements
+        if (elements == 0) {
+            return result;
+        }
+
         for (Map.Entry<UUID, Integer> entry : bucket.entrySet()) {
 
+            //If we haven't found any result yet, check if we'v arrived in the right chunk
+            //To check it we add to the accumulator the current entry level, if that's greater than startElementIndex this is the starting chunk
             if (result.isEmpty() && accumulator + entry.getValue() > startElementIndex) {
+
+                //To calculate the starting position we should remove "accumulator" from the value of StartingElementIndex
+                //Accumulator has the amount of elements present in previous chunks, removing it from startElementIndex will give us how many elements
+                //we should ignore from the start of the current chunk
                 int start = startElementIndex - accumulator;
+                //The taken amount from the current chunk could be the total missing elements (currElements) OR all the elements of the chunk (entry value - start index)
+                //The lowest one will b the picked
                 int takenAmount = Math.min(currElements, entry.getValue() - start);
-                int end = Math.min(takenAmount, entry.getValue());
+                //The end is "EXCLUDED" since the result will be used for a sublist, so we get the min from start + takenAmount that can be less than the total entries
+                int end = Math.min(start + takenAmount, entry.getValue());
+
+                //Remove takenAmount from currElements
                 currElements -= takenAmount;
+                //Add ChunkRange
                 result.add(new ChunkRange(entry.getKey(), start, end));
-            } else if (!result.isEmpty()) {
+            }
+            //If the result is not empty it means we are still gathering Chunks and we already got the first one
+            //So if we still are in the loop it means this chunk HAS to be considered
+            else if (!result.isEmpty()) {
+                //From the start of the chunk
                 int start = 0;
+                //All the missing elements OR the total amount we have in the chunk
                 int takenAmount = Math.min(currElements, entry.getValue());
+                //Remove them from the currentElements
                 currElements -= takenAmount;
+                //Add ChunkRange
                 result.add(new ChunkRange(entry.getKey(), start, takenAmount));
+            } else {
+                //Step
+                accumulator += entry.getValue();
             }
 
+            //Exit since we have finished gathering elements
             if (currElements <= 0) {
                 break;
             }
         }
+        
         return result;
     }
 
