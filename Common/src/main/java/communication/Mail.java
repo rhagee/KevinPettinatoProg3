@@ -12,7 +12,7 @@ public class Mail extends SmallMail implements Serializable {
     private boolean read;
 
     public Mail() {
-        id = UUID.randomUUID();
+        
     }
 
     public Mail(Mail toCopy) {

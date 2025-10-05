@@ -13,6 +13,9 @@ import java.util.LinkedHashMap;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class ProgApplication extends Application {
     private static final Logger LOGGER = Logger.getLogger("INIT");
 
@@ -55,6 +58,14 @@ public class ProgApplication extends Application {
         for (ChunkRange range : ranges) {
             LOGGER.info(" Chunk(" + range.getId() + " start: " + range.getStart() + ", end : " + range.getEnd() + ")");
         }
+
+        String jsonString = new ObjectMapper().writeValueAsString(mailBox);
+        MailBox deserialized = new ObjectMapper().readValue(jsonString, MailBox.class);
+        LOGGER.info("DESERIALIZED MAP");
+        deserialized.getReceivedBucket().forEach((s, integer) -> {
+            LOGGER.info("UUID : " + s + " - Value " + integer);
+        });
+        LOGGER.info(jsonString);
 
     }
 

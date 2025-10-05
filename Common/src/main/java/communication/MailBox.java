@@ -8,6 +8,7 @@ public class MailBox implements Serializable {
     private static final int CHUNK_SIZE = 50;
 
     private String mail;
+
     private int received = 0;
     private int toRead = 0;
     private int sent = 0;
@@ -38,6 +39,56 @@ public class MailBox implements Serializable {
         this.sent = toCopy.sent;
         this.receivedBucket.putAll(toCopy.receivedBucket);
         this.sentBucket.putAll(toCopy.sentBucket);
+    }
+
+
+    public String getMail() {
+        return mail;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
+    }
+
+    public int getReceived() {
+        return received;
+    }
+
+
+    public void setReceived(int received) {
+        this.received = received;
+    }
+
+    public int getToRead() {
+        return toRead;
+    }
+
+    public void setToRead(int toRead) {
+        this.toRead = toRead;
+    }
+
+    public int getSent() {
+        return sent;
+    }
+
+    public void setSent(int sent) {
+        this.sent = sent;
+    }
+
+    public LinkedHashMap<UUID, Integer> getReceivedBucket() {
+        return receivedBucket;
+    }
+
+    public void setReceivedBucket(LinkedHashMap<UUID, Integer> receivedBucket) {
+        this.receivedBucket = receivedBucket;
+    }
+
+    public LinkedHashMap<UUID, Integer> getSentBucket() {
+        return sentBucket;
+    }
+
+    public void setSentBucket(LinkedHashMap<UUID, Integer> sentBucket) {
+        this.sentBucket = sentBucket;
     }
 
     public void IncrementReceived() {
@@ -158,7 +209,7 @@ public class MailBox implements Serializable {
                 break;
             }
         }
-        
+
         return result;
     }
 
