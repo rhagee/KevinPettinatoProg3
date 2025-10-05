@@ -21,6 +21,9 @@ public class AlertManager {
     private static AlertManager INSTANCE;
     private final ObservableList<AlertItem> items = FXCollections.observableArrayList();
 
+    private Parent failedModal;
+    private Parent retryModal;
+
     private HashMap<String, AlertItem> itemsMap = new HashMap<>();
 
     public ObservableList<AlertItem> getItems() {
@@ -47,11 +50,70 @@ public class AlertManager {
             FXMLLoader loader = new FXMLLoader(ProgApplication.class.getResource("/com/prog/ui/alert/alert_list.fxml"));
             Parent listRoot = loader.load();
             root.getChildren().add(listRoot);
+
             WarmupAlertItem();
+
         } catch (IOException e) {
             System.err.println("Errore durante il caricamento dell'alertList");
             e.printStackTrace();
         }
+    }
+
+
+    public void OnConnectionFailed() {
+        Platform.runLater(() -> {
+            CloseRetryModal();
+            LoadFailedModal();
+        });
+
+    }
+
+    public void OnConnectionDropped() {
+        Platform.runLater(() -> {
+            CloseFailedModal();
+            LoadRetryModal();
+        });
+    }
+
+    private void LoadFailedModal() {
+        if (failedModal != null) {
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(ProgApplication.class.getResource("/com/prog/ui/alert/failed_modal.fxml"));
+            failedModal = loader.load();
+            root.getChildren().add(failedModal);
+        } catch (IOException e) {
+            System.err.println("Errore durante il caricamento del fail modal");
+            e.printStackTrace();
+        }
+    }
+
+    private void CloseFailedModal() {
+        root.getChildren().remove(failedModal);
+        failedModal = null;
+    }
+
+
+    private void LoadRetryModal() {
+        if (retryModal != null) {
+            return;
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(ProgApplication.class.getResource("/com/prog/ui/alert/retry_modal.fxml"));
+            retryModal = loader.load();
+            root.getChildren().add(retryModal);
+        } catch (IOException e) {
+            System.err.println("Errore durante il caricamento del fail modal");
+            e.printStackTrace();
+        }
+    }
+
+    private void CloseRetryModal() {
+        root.getChildren().remove(retryModal);
+        retryModal = null;
     }
 
     private void WarmupAlertItem() {

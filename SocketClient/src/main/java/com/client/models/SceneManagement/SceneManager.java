@@ -1,6 +1,7 @@
 package com.client.models.SceneManagement;
 
 import com.client.models.AlertManagement.AlertManager;
+import com.client.models.BackendManagement.BackendManager;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -8,7 +9,40 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+/*
+UI STRUCTURE
 
+     STAGE-----+
+               |
+               ROOT-----+
+                        |
+                        MAIN ------------+
+                        |                |
+                        |                Actual showed page
+                        |
+                        ABSOLUTE --------+
+                                         |
+                                         Alerts
+                                         |
+                                         Modals
+*/
+
+
+/*
+ Considerations :
+
+ I think this can be improved by keeping "old scenes" referenced in a dictionary and just re-call an Initialize method on their controllers
+ that can extends an actual abstract class (so we call Initialize on the Abstract).
+ This would improve performance since we don't ALWAYS re-load the DOM elements from file but keep them.
+
+ This should be done considering Ram usage since a lot of mapped pages might end up using too much Ram space while not-used.
+ Might work as an LRU Cache with fixed size to optimize navigation time.
+
+ Decision : Will not implement any of that since might be out of the project's scope but might be interesting.
+            Definitely something I would investigate for scalability on a big software.
+ */
+
+//A Singleton class that will handle the "root" level navigation and keep track of elements in the main UI setup.
 public class SceneManager {
     private static final String AppName = "SocketMailer";
 
@@ -20,6 +54,8 @@ public class SceneManager {
     public Parent ActivePage;
 
     private static SceneManager INSTANCE;
+
+    private Thread backendThread;
 
     public static SceneManager get() {
         if (INSTANCE == null) throw new IllegalStateException("SceneManager not initialized");
@@ -43,7 +79,11 @@ public class SceneManager {
             SceneTransitions.NoTransition(SceneNames.LOGIN);
             SetWindowTitle("Login");
             stage.setScene(scene);
+            stage.setResizable(false);
             stage.show();
+
+            //Start it after UI is ready to give feedbacks
+            TryConnectToBackend();
         });
     }
 
@@ -58,6 +98,11 @@ public class SceneManager {
 
         root.getChildren().addAll(main, absolute);
         return new Scene(root, 1024, 768);
+    }
+
+    public void TryConnectToBackend() {
+        backendThread = new Thread(BackendManager.INSTANCE);
+        backendThread.start();
     }
 
     public Scene getCurrentScene() {
@@ -83,5 +128,13 @@ public class SceneManager {
 
     public Pane getAbsolute() {
         return absolute;
+    }
+
+
+    public void StopBackendThread() {
+        if (backendThread != null && backendThread.isAlive()) {
+            System.out.println("Stopping backend thread");
+            backendThread.interrupt();
+        }
     }
 }

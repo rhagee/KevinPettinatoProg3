@@ -65,7 +65,8 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>com.kevin_pettinato.prog3.socketserver/com.server.HelloApplication</mainClass>
+                            <mainClass>com.kevin_pettinato.prog3.socketserver/com.server.models.ProgApplication
+                            </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>
