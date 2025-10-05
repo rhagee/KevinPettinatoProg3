@@ -5,5 +5,6 @@ public enum RequestCodes {
     AUTH,
     SEND,
     RECEIVE,
-    DELETE
+    DELETE,
+    POLLING
 }

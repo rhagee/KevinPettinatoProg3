@@ -1,5 +1,6 @@
 package com.server.models.threads;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.server.models.DatabaseHandler;
 import communication.Request;
 import communication.Response;
@@ -15,28 +16,20 @@ import java.util.logging.Logger;
 
 public class MailHandlerSocket extends Thread {
 
-
     private static final Logger LOGGER = Logger.getLogger("MAIL_HANDLER");
 
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private Socket client;
 
-    private Object requestObj;
-
     private String mail;
-    private boolean isLogged = false;
-
-    public String getMail() {
-        return mail;
-    }
+    private Object requestObj;
 
 
     public MailHandlerSocket(Socket client, ObjectInputStream in, ObjectOutputStream out) {
         this.client = client;
         this.in = in;
         this.out = out;
-        isLogged = false;
     }
 
     @Override
@@ -49,13 +42,12 @@ public class MailHandlerSocket extends Thread {
                 continue;
             }
 
-            //Wrong Type
-            if (!(requestObj instanceof Request<?>)) {
+            //Wrong Type Check + Assign request with Cast
+            if (!(requestObj instanceof Request<?> request)) {
                 LOGGER.log(Level.WARNING, "Can't parse requestedObject", requestObj);
                 continue;
             }
 
-            Request<?> request = (Request<?>) requestObj;
             HandleRequest(request);
         }
 
@@ -72,6 +64,12 @@ public class MailHandlerSocket extends Thread {
                 break;
             case RequestCodes.SEND:
                 OnSend(request);
+                break;
+            case RequestCodes.POLLING:
+                OnPoll(request);
+                break;
+            case RequestCodes.DELETE:
+                OnDelete(request);
                 break;
             default:
                 OnNotFound(request);
@@ -90,15 +88,14 @@ public class MailHandlerSocket extends Thread {
         }
 
         String mail = (String) request.getPayload();
-        if (!DatabaseHandler.INSTANCE.CheckUser(mail)) {
+        String token = DatabaseHandler.INSTANCE.checkUser(mail);
+        if (token == null) {
             LOGGER.log(Level.INFO, "Email : " + mail + " is not a valid account");
             SendObject(new Response<>(request.getRequestID(), "", ResponseCodes.UNAUTHORIZED));
             return;
         }
 
-        this.mail = mail;
-        SocketHandler.registerMailHandler(mail, this);
-        SendObject(new Response<>(request.getRequestID(), "", ResponseCodes.OK));
+        SendObject(new Response<>(request.getRequestID(), token, ResponseCodes.OK));
     }
 
     private void OnReceive(Request<?> request) {
@@ -107,7 +104,19 @@ public class MailHandlerSocket extends Thread {
         }
     }
 
+    private void OnPoll(Request<?> request) {
+        if (!isAuthenticated(request)) {
+            return;
+        }
+    }
+
     private void OnSend(Request<?> request) {
+        if (!isAuthenticated(request)) {
+            return;
+        }
+    }
+
+    private void OnDelete(Request<?> request) {
         if (!isAuthenticated(request)) {
             return;
         }
@@ -125,13 +134,15 @@ public class MailHandlerSocket extends Thread {
     }
 
     private boolean isAuthenticated(Request<?> request) {
-        if (isLogged && mail != null) {
+        try {
+            String token = request.getToken();
+            this.mail = DatabaseHandler.INSTANCE.DecodeToken(token);
             return true;
+        } catch (JWTVerificationException exception) {
+            LOGGER.log(Level.INFO, "Client " + client.getInetAddress().toString() + " not authorized to " + request.getCode().toString());
+            SendObject(new Response<>(request.getRequestID(), "", ResponseCodes.UNAUTHORIZED));
+            return false;
         }
-
-        LOGGER.log(Level.INFO, "Client " + client.getInetAddress().toString() + " not authorized to " + request.getCode().toString());
-        SendObject(new Response<>(request.getRequestID(), "", ResponseCodes.UNAUTHORIZED));
-        return false;
     }
 
     private synchronized void SendObject(Response<?> res) {
@@ -147,12 +158,6 @@ public class MailHandlerSocket extends Thread {
         try {
             return (requestObj = in.readObject()) != null;
         } catch (IOException e) {
-
-            //Unregister if connection is closed
-            if (isLogged && mail != null) {
-                SocketHandler.unregisterMailHandler(mail, this);
-            }
-
             return false;
         } catch (ClassNotFoundException e) {
             LOGGER.log(Level.WARNING, "Class not found", e);
@@ -161,19 +166,15 @@ public class MailHandlerSocket extends Thread {
         }
     }
 
-    public void sendMail(Response<?> res) {
-        SendObject(res);
-    }
-
     @Override
     public void interrupt() {
         try {
-
+            LOGGER.info("Interrupting connection with " + client.getInetAddress().toString());
             if (!client.isClosed()) {
                 client.close();
             }
         } catch (IOException exception) {
-            exception.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Exception while interrupting thread : \n", exception.getMessage());
         } finally {
             super.interrupt();
         }

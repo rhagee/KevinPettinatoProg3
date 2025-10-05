@@ -35,8 +35,10 @@ public class ProgApplication extends Application {
         handlerThread = new Thread(socketHandler);
         handlerThread.start();
 
+        DatabaseHandler.INSTANCE.Initialize();
+
         //LOGGER.log(Level.INFO, "Server will listen on " + ConnectionInfo.SERVER_IP + ":" + ConnectionInfo.SERVER_PORT);
-        MailBox mailBox = new MailBox();
+        /*MailBox mailBox = new MailBox();
         LinkedHashMap<UUID, Integer> temp = new LinkedHashMap<UUID, Integer>();
 
 
@@ -65,7 +67,7 @@ public class ProgApplication extends Application {
         deserialized.getReceivedBucket().forEach((s, integer) -> {
             LOGGER.info("UUID : " + s + " - Value " + integer);
         });
-        LOGGER.info(jsonString);
+        LOGGER.info(jsonString);*/
 
     }
 
