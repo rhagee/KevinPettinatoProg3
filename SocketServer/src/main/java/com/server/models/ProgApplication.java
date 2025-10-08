@@ -30,10 +30,10 @@ public class ProgApplication extends Application {
         stage.setResizable(false);
         stage.show();
 
+        DatabaseHandler.INSTANCE.Initialize();
+
         socketHandler = new SocketHandler();
         socketHandler.start();
-
-        DatabaseHandler.INSTANCE.Initialize();
 
         //LOGGER.log(Level.INFO, "Server will listen on " + ConnectionInfo.SERVER_IP + ":" + ConnectionInfo.SERVER_PORT);
         /*MailBox mailBox = new MailBox();

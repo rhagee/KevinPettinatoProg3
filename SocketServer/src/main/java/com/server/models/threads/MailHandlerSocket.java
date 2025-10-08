@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 
 public class MailHandlerSocket extends Thread {
 
-    private static final Logger LOGGER = Logger.getLogger("MAIL_HANDLER");
+    private static final Logger LOGGER = Logger.getLogger("SocketWorker");
 
     private UUID id;
     private ObjectInputStream in;

@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 public enum DatabaseHandler {
     INSTANCE;
 
-    private static final Logger LOGGER = Logger.getLogger("DB");
+    private static final Logger LOGGER = Logger.getLogger("DatabaseHandler");
     private static final String secret = "PROG3EXAM";
     private static final String issuer = "MailServer";
     public static final String dbName = "MailServer_Database";

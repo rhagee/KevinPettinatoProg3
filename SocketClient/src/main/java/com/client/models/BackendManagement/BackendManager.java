@@ -1,12 +1,9 @@
 package com.client.models.BackendManagement;
 
-import com.client.models.AlertManagement.AlertManager;
 import com.client.models.ProgApplication;
 import communication.Request;
 import communication.Response;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import utils.ConnectionInfo;
 import utils.RequestCodes;
@@ -21,7 +18,7 @@ import java.util.concurrent.Executors;
 public enum BackendManager implements Runnable {
     INSTANCE;
 
-    public static final int MAX_RETRY = 2;
+    public static final int MAX_RETRY = 3;
     public static final long RETRY_BACKOFF_MULTIPLIER = 1000L;
 
     private int retryAttempts = 0;
