@@ -53,6 +53,10 @@ public class AlertManager {
 
             WarmupAlertItem();
 
+            FXMLLoader overlayLoader = new FXMLLoader(ProgApplication.class.getResource("/com/prog/ui/alert/connection_state_overlay.fxml"));
+            Parent overlayRoot = overlayLoader.load();
+            root.getChildren().add(overlayRoot);
+
         } catch (IOException e) {
             System.err.println("Errore durante il caricamento dell'alertList");
             e.printStackTrace();
@@ -72,6 +76,13 @@ public class AlertManager {
         Platform.runLater(() -> {
             CloseFailedModal();
             LoadRetryModal();
+        });
+    }
+
+    public void OnConnectionSuccessful() {
+        Platform.runLater(() -> {
+            CloseFailedModal();
+            CloseRetryModal();
         });
     }
 
@@ -102,7 +113,7 @@ public class AlertManager {
         }
 
         try {
-            FXMLLoader loader = new FXMLLoader(ProgApplication.class.getResource("/com/prog/ui/alert/retry_modal.fxml"));
+            FXMLLoader loader = new FXMLLoader(ProgApplication.class.getResource("/com/prog/ui/alert/connection_state_overlay.fxml"));
             retryModal = loader.load();
             root.getChildren().add(retryModal);
         } catch (IOException e) {

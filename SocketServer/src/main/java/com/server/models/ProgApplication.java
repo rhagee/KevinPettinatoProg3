@@ -20,7 +20,6 @@ public class ProgApplication extends Application {
     private static final Logger LOGGER = Logger.getLogger("INIT");
 
     private SocketHandler socketHandler;
-    private Thread handlerThread;
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -32,8 +31,7 @@ public class ProgApplication extends Application {
         stage.show();
 
         socketHandler = new SocketHandler();
-        handlerThread = new Thread(socketHandler);
-        handlerThread.start();
+        socketHandler.start();
 
         DatabaseHandler.INSTANCE.Initialize();
 
@@ -73,6 +71,6 @@ public class ProgApplication extends Application {
 
     @Override
     public void stop() {
-        handlerThread.interrupt();
+        socketHandler.interrupt();
     }
 }

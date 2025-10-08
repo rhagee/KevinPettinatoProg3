@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,6 +19,7 @@ public class MailHandlerSocket extends Thread {
 
     private static final Logger LOGGER = Logger.getLogger("MAIL_HANDLER");
 
+    private UUID id;
     private ObjectInputStream in;
     private ObjectOutputStream out;
     private Socket client;
@@ -26,7 +28,8 @@ public class MailHandlerSocket extends Thread {
     private Object requestObj;
 
 
-    public MailHandlerSocket(Socket client, ObjectInputStream in, ObjectOutputStream out) {
+    public MailHandlerSocket(UUID id, Socket client, ObjectInputStream in, ObjectOutputStream out) {
+        this.id = id;
         this.client = client;
         this.in = in;
         this.out = out;
@@ -35,6 +38,7 @@ public class MailHandlerSocket extends Thread {
     @Override
     public void run() {
 
+        LOGGER.info("Listening Requests from client: " + client.getRemoteSocketAddress());
         while (!Thread.currentThread().isInterrupted() && TryReadObject()) {
 
             //Exception
@@ -50,7 +54,6 @@ public class MailHandlerSocket extends Thread {
 
             HandleRequest(request);
         }
-
     }
 
     private void HandleRequest(Request<?> request) {
@@ -95,6 +98,8 @@ public class MailHandlerSocket extends Thread {
             return;
         }
 
+        this.mail = mail;
+        SocketHandler.registerMailHandler(mail, this);
         SendObject(new Response<>(request.getRequestID(), token, ResponseCodes.OK));
     }
 
@@ -136,7 +141,7 @@ public class MailHandlerSocket extends Thread {
     private boolean isAuthenticated(Request<?> request) {
         try {
             String token = request.getToken();
-            this.mail = DatabaseHandler.INSTANCE.DecodeToken(token);
+            this.mail = DatabaseHandler.INSTANCE.DecodeToken(token); //Refresh Mail in case we'v lost it (re-connection)
             return true;
         } catch (JWTVerificationException exception) {
             LOGGER.log(Level.INFO, "Client " + client.getInetAddress().toString() + " not authorized to " + request.getCode().toString());
@@ -158,6 +163,8 @@ public class MailHandlerSocket extends Thread {
         try {
             return (requestObj = in.readObject()) != null;
         } catch (IOException e) {
+            LOGGER.info("Connection with " + client.getRemoteSocketAddress() + " closed.");
+            SocketHandler.removeHandler(id, mail);
             return false;
         } catch (ClassNotFoundException e) {
             LOGGER.log(Level.WARNING, "Class not found", e);
@@ -166,15 +173,20 @@ public class MailHandlerSocket extends Thread {
         }
     }
 
+    public void sendMail(Response<?> res) {
+        SendObject(res);
+    }
+
     @Override
     public void interrupt() {
         try {
-            LOGGER.info("Interrupting connection with " + client.getInetAddress().toString());
+            LOGGER.info("Interrupting connection with " + client.getRemoteSocketAddress());
+
             if (!client.isClosed()) {
                 client.close();
             }
         } catch (IOException exception) {
-            LOGGER.log(Level.SEVERE, "Exception while interrupting thread : \n", exception.getMessage());
+            LOGGER.severe("Exception while interrupting thread");
         } finally {
             super.interrupt();
         }

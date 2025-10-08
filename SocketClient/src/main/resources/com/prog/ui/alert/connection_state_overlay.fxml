@@ -1,0 +1,47 @@
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.paint.RadialGradient?>
+<?import javafx.scene.paint.Stop?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<HBox stylesheets="@styles/retry_modal.css" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.client.controllers.alert.ConnectionStateOverlay" fx:id="root"
+      alignment="CENTER_RIGHT"
+      StackPane.alignment="TOP_RIGHT" styleClass="connection-overlay-container" spacing="8">
+    <StackPane.margin>
+        <Insets top="15" right="15"/>
+    </StackPane.margin>
+    <Button fx:id="retryBtn" onAction="#onRetry" styleClass="retry-btn" managed="false"
+            visible="false">
+        <graphic>
+            <FontIcon iconLiteral="mdi2r-refresh" iconColor="#ffffff" iconSize="18"/>
+        </graphic>
+    </Button>
+    <HBox
+            styleClass="connection-overlay-modal"
+            alignment="CENTER"
+            spacing="8"
+    >
+
+        <effect>
+            <DropShadow radius="8" color="rgba(0,0,0,0.3)"/>
+        </effect>
+        <ProgressIndicator maxWidth="16" maxHeight="16" fx:id="loader" styleClass="alert-loader"/>
+        <Circle radius="6" fx:id="statusIcon" managed="false" visible="false">
+            <fill>
+                <RadialGradient>
+                    <stops>
+                        <Stop color="#a4edb5"/>
+                        <Stop offset="1.0" color="#618f6c"/>
+                    </stops>
+                </RadialGradient>
+            </fill>
+        </Circle>
+
+        <Label fx:id="statusLabel" wrapText="true" styleClass="status-label" text="Riconnessione"/>
+
+    </HBox>
+</HBox>
