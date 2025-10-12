@@ -1,4 +1,4 @@
-package com.client.utils;
+package utils;
 
 
 public enum Colors {

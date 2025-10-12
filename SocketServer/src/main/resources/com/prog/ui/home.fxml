@@ -3,14 +3,37 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.TextFlow?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.text.Text?>
 <VBox alignment="CENTER" xmlns:fx="http://javafx.com/fxml" spacing="24"
       stylesheets="@home.css"
-      style="padding:20;-fx-background-color:#1f1f1f"
+      style="padding:20;-fx-background-color:#1f1f1f;"
       fx:controller="com.server.controllers.UIController">
 
     <Label text="Server Console" style="-fx-font-size: 26;-fx-font-weight: 800; -fx-text-fill: white"/>
-    <ScrollPane fx:id="scrollPane" minWidth="800" maxWidth="800" minHeight="800" maxHeight="800"
-                style="-fx-padding: 10;-fx-background-color:#121212;-fx-background-radius: 8">
-        <TextFlow fx:id="console"/>
-    </ScrollPane>
+    <HBox spacing="8" alignment="CENTER">
+        <ScrollPane fx:id="scrollPane" minWidth="800" maxWidth="800" minHeight="800" maxHeight="800"
+                    style="-fx-padding: 10;-fx-background-color:#121212;-fx-background-radius: 8;">
+            <TextFlow fx:id="console" style="-fx-font-size: 16"/>
+        </ScrollPane>
+        <VBox spacing="16" alignment="TOP_CENTER">
+            <ScrollPane fx:id="mailScrollPane" minWidth="200" maxWidth="200" minHeight="600" maxHeight="600"
+                        style="-fx-padding: 10;-fx-background-color:#121212;-fx-background-radius: 8">
+                <VBox fx:id="mailListBox" spacing="4">
+                    <Label style="-fx-text-fill: rgba(255,255,255,0.5)" text="Nessuna mail presente"/>
+                </VBox>
+            </ScrollPane>
+            <VBox spacing="8" maxWidth="200">
+                <TextField fx:id="newMailText" styleClass="new-mail" promptText="mail@domain.com"
+                           onAction="#onAdd"/>
+                <Button text="Aggiungi" styleClass="add-button" onAction="#onAdd"/>
+                <Label maxWidth="200" fx:id="errorText"
+                       style="-fx-wrap-text: true; -fx-text-fill: #d14343"
+                       text=""/>
+            </VBox>
+        </VBox>
+    </HBox>
+
 </VBox>

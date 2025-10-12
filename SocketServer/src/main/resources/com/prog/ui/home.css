@@ -14,3 +14,20 @@
 .scroll-pane .content {
     -fx-background-color: transparent;
 }
+
+.new-mail {
+    -fx-background-color: rgba(50, 50, 50, 0.5);
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: rgba(200, 200, 200, 0.5);
+    -fx-font-size: 16;
+}
+
+
+.add-button {
+    -fx-background-color: rgba(129, 240, 58, 0.5);
+    -fx-max-width: 999;
+    -fx-text-fill: white;
+    -fx-font-weight: 800;
+    -fx-font-size: 16;
+
+}

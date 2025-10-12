@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import communication.Accounts;
 import communication.Mail;
 import communication.MailBoxChunk;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ChangeListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +35,7 @@ public enum DatabaseHandler {
     public static File CACHED_DIR;
     private static File CACHED_USER_FILE;
 
-    private Accounts accounts;
+    private Accounts accounts = new Accounts();
     private boolean isInitialized = false;
 
     private static File USER_FILE() {
@@ -159,6 +161,20 @@ public enum DatabaseHandler {
         }
     }
 
+    public synchronized boolean addUser(String mail) {
+        try {
+            boolean result = accounts.addMail(mail);
+            if (result) {
+                MAPPER.writeValue(USER_FILE(), accounts.getMails());
+            }
+
+            return result;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public synchronized String GenerateToken(String email) throws JWTVerificationException {
         return JWT.create().withIssuer(issuer).withPayload(email).sign(Algorithm.HMAC256(secret));
     }
@@ -168,16 +184,27 @@ public enum DatabaseHandler {
         return jwt.getPayload();
     }
 
+    public void addAccountsListener(ChangeListener<List<String>> changeListener) {
+        accounts.addListener(changeListener);
+    }
+
+    public void removeAccountsListener(ChangeListener<List<String>> changeListener) {
+        accounts.removeListener(changeListener);
+    }
+
+    public List<String> getAccountsList() {
+        return accounts.getMails();
+    }
+
     private synchronized boolean LoadAccounts() {
         try {
             LOGGER.info("Loading accounts...");
             File userFile = USER_FILE();
             if (!userFile.exists()) {
-                Accounts accounts = new Accounts();
-                MAPPER.writeValue(userFile, accounts);
+                MAPPER.writeValue(userFile, new ArrayList<>());
             }
 
-            accounts = MAPPER.readValue(userFile, Accounts.class);
+            accounts.setMails(MAPPER.readValue(userFile, List.class));
             LOGGER.info("Accounts loaded successfully");
             return true;
         } catch (IOException e) {

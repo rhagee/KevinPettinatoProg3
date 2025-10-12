@@ -2,7 +2,7 @@ package com.client.controllers.alert;
 
 import com.client.models.AlertManagement.AlertItem;
 import com.client.models.AlertManagement.AlertType;
-import com.client.utils.Colors;
+import utils.Colors;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.Node;

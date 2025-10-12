@@ -24,7 +24,7 @@ public class ProgApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(ProgApplication.class.getResource("/com/prog/ui/home.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 900, 900);
+        Scene scene = new Scene(fxmlLoader.load(), 1200, 900);
         stage.setTitle("Server Mail");
         stage.setScene(scene);
         stage.setResizable(false);

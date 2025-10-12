@@ -1,59 +1,48 @@
 package communication;
 
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.ListPropertyBase;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.collections.FXCollections;
+
 import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.UUID;
+import java.util.List;
 
 public class Accounts implements Serializable {
 
-    private LinkedHashMap<String, UUID> mailToID = new LinkedHashMap<>();
-    private LinkedHashMap<UUID, String> idToMail = new LinkedHashMap<>();
+    private ListProperty<String> mails = new SimpleListProperty<>(FXCollections.observableArrayList());
 
-    public LinkedHashMap<String, UUID> getMailToID() {
-        return mailToID;
+    public synchronized boolean authMail(String mail) {
+        return mailExists(mail);
     }
 
-    public void setMailToID(LinkedHashMap<String, UUID> mailToID) {
-        this.mailToID = mailToID;
+    public boolean mailExists(String mail) {
+        return mails.contains(mail);
     }
 
-    public LinkedHashMap<UUID, String> getIdToMail() {
-        return idToMail;
-    }
-
-    public void setIdToMail(LinkedHashMap<UUID, String> idToMail) {
-        this.idToMail = idToMail;
-    }
-
-    public UUID getID(String mail) {
-        return mailToID.get(mail);
-    }
-
-    public String getMail(UUID id) {
-        return idToMail.get(id);
-    }
-
-    public boolean authMail(String mail) {
-        return mailToID.containsKey(mail);
-    }
-
-    public void addMail(String mail) {
-        if (mailToID.containsKey(mail)) {
-            return;
+    public synchronized boolean addMail(String mail) {
+        if (mailExists(mail)) {
+            return false;
         }
 
-        UUID id = UUID.randomUUID();
-        mailToID.put(mail, id);
-        idToMail.put(id, mail);
+        mails.add(mail);
+        return true;
     }
 
-    public void deleteMail(String mail) {
-        UUID id = mailToID.get(mail);
-        if (id == null) {
-            return;
-        }
+    public void setMails(List<String> mails) {
+        this.mails.addAll(mails);
+    }
 
-        idToMail.remove(id);
-        mailToID.remove(mail);
+    public List<String> getMails() {
+        return this.mails.getValue();
+    }
+
+    public void addListener(ChangeListener<List<String>> changeListener) {
+        mails.addListener(changeListener);
+    }
+
+    public void removeListener(ChangeListener<List<String>> changeListener) {
+        mails.removeListener(changeListener);
     }
 }
