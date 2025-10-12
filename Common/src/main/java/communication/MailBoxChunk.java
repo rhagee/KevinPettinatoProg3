@@ -10,8 +10,13 @@ public class MailBoxChunk implements Serializable {
     private String mail;
     private ArrayList<Mail> mailList = new ArrayList<>();
 
+
     public MailBoxChunk() {
-        this.chunkID = UUID.randomUUID();
+    }
+
+    public MailBoxChunk(UUID id, String mail) {
+        this.chunkID = id;
+        this.mail = mail;
     }
 
     public MailBoxChunk(String mail) {
@@ -51,6 +56,30 @@ public class MailBoxChunk implements Serializable {
 
     public List<Mail> getMailFromTo(int start, int end) {
         return this.mailList.subList(start, getClampedEnd(end));
+    }
+
+    public UUID getChunkID() {
+        return chunkID;
+    }
+
+    public String getMail() {
+        return mail;
+    }
+
+    public List<Mail> getMailList() {
+        return mailList;
+    }
+
+    public void setChunkID(UUID id) {
+        this.chunkID = id;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
+    }
+
+    public void setMailList(ArrayList<Mail> mailList) {
+        this.mailList = mailList;
     }
 
 }

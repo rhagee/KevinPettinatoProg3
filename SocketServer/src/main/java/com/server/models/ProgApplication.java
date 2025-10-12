@@ -3,6 +3,7 @@ package com.server.models;
 import com.server.models.threads.SocketHandler;
 import communication.ChunkRange;
 import communication.MailBox;
+import communication.SmallMail;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -17,6 +18,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ProgApplication extends Application {
+    public static boolean APPLICATION_CLOSED = false;
+
     private static final Logger LOGGER = Logger.getLogger("INIT");
 
     private SocketHandler socketHandler;
@@ -35,42 +38,22 @@ public class ProgApplication extends Application {
         socketHandler = new SocketHandler();
         socketHandler.start();
 
-        //LOGGER.log(Level.INFO, "Server will listen on " + ConnectionInfo.SERVER_IP + ":" + ConnectionInfo.SERVER_PORT);
-        /*MailBox mailBox = new MailBox();
-        LinkedHashMap<UUID, Integer> temp = new LinkedHashMap<UUID, Integer>();
 
+        //TEST
+        SmallMail mail = new SmallMail();
+        mail.CreateEmpty("test@test.com");
+        mail.addReceiver("kevin@kevin.com");
+        mail.setSubject("Invio Mail Test");
+        mail.setMessage("Ciao questa è una mail di prova!");
 
-        temp.putFirst(UUID.randomUUID(), 25);
-        temp.putFirst(UUID.randomUUID(), 10);
-        temp.putFirst(UUID.randomUUID(), 4);
-        temp.putFirst(UUID.randomUUID(), 20);
-        temp.putFirst(UUID.randomUUID(), 6);
-
-        mailBox.TempReceivedSetter(temp);
-
-        LOGGER.info("MAP");
-        temp.forEach((s, integer) -> {
-            LOGGER.info("UUID : " + s + " - Value " + integer);
-        });
-
-        LOGGER.info("EVALUATION");
-        var ranges = mailBox.getReceivedChunks(5, 0);
-        for (ChunkRange range : ranges) {
-            LOGGER.info(" Chunk(" + range.getId() + " start: " + range.getStart() + ", end : " + range.getEnd() + ")");
-        }
-
-        String jsonString = new ObjectMapper().writeValueAsString(mailBox);
-        MailBox deserialized = new ObjectMapper().readValue(jsonString, MailBox.class);
-        LOGGER.info("DESERIALIZED MAP");
-        deserialized.getReceivedBucket().forEach((s, integer) -> {
-            LOGGER.info("UUID : " + s + " - Value " + integer);
-        });
-        LOGGER.info(jsonString);*/
+        DatabaseHandler.INSTANCE.SendMail(mail);
+        //ENDTEST
 
     }
 
     @Override
     public void stop() {
+        APPLICATION_CLOSED = true;
         socketHandler.interrupt();
     }
 }

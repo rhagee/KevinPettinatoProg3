@@ -19,7 +19,7 @@
             <TextFlow fx:id="console" style="-fx-font-size: 16"/>
         </ScrollPane>
         <VBox spacing="16" alignment="TOP_CENTER">
-            <ScrollPane fx:id="mailScrollPane" minWidth="200" maxWidth="200" minHeight="600" maxHeight="600"
+            <ScrollPane fx:id="mailScrollPane" minWidth="200" maxWidth="200" minHeight="680" maxHeight="680"
                         style="-fx-padding: 10;-fx-background-color:#121212;-fx-background-radius: 8">
                 <VBox fx:id="mailListBox" spacing="4">
                     <Label style="-fx-text-fill: rgba(255,255,255,0.5)" text="Nessuna mail presente"/>

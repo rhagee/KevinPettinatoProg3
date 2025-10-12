@@ -8,9 +8,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.impl.JWTParser;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import communication.Accounts;
-import communication.Mail;
-import communication.MailBoxChunk;
+import communication.*;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 
@@ -18,26 +16,37 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 public enum DatabaseHandler {
     INSTANCE;
 
+    //region Constants
     private static final Logger LOGGER = Logger.getLogger("DatabaseHandler");
     private static final String secret = "PROG3EXAM";
     private static final String issuer = "MailServer";
     public static final String dbName = "MailServer_Database";
     private static final String USERS_FILE_NAME = "users.json";
+    private static final String MAILBOX_FILE_NAME = "mailbox.json";
+    private static final String SENT_CHUNKS_DIR_NAME = "sent_chunks";
+    private static final String RECEIVED_CHUNKS_DIR_NAME = "received_chunks";
+    //endregion
 
+    //region Statics
     public static final ObjectMapper MAPPER = new ObjectMapper();
     private static final JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(secret)).withIssuer(issuer).build();
 
     public static File CACHED_DIR;
     private static File CACHED_USER_FILE;
+    //endregion
 
-    private Accounts accounts = new Accounts();
+    //region Properties
+    private final Accounts accounts = new Accounts();
     private boolean isInitialized = false;
+    //endregion
 
+    //region DIR_UTILS
     private static File USER_FILE() {
         if (CACHED_USER_FILE != null) {
             return CACHED_USER_FILE;
@@ -82,7 +91,9 @@ public enum DatabaseHandler {
         CACHED_DIR = dir;
         return dir;
     }
+    //endregion
 
+    //region Flow
     public synchronized void Initialize() {
         LOGGER.info("Initializing DatabaseHandler...");
         if (isInitialized) {
@@ -95,28 +106,10 @@ public enum DatabaseHandler {
 
         LOGGER.info("DatabaseHandler Initialized successfully!");
         isInitialized = true;
-
     }
+    //endregion
 
-    public synchronized boolean CreateAccount(String mail) {
-
-        LOGGER.info("Creating new account : " + mail);
-        if (!isInitialized) {
-            Initialize();
-        }
-
-        return true;
-    }
-
-    public synchronized boolean DeleteAccount(String mail) {
-        LOGGER.info("Deleting existing account : " + mail);
-        if (!isInitialized) {
-            Initialize();
-        }
-
-        return true;
-    }
-
+    //region Query
     public synchronized List<Mail> GetMailPage() {
 
         if (!isInitialized) {
@@ -126,11 +119,21 @@ public enum DatabaseHandler {
         return null;
     }
 
-    public synchronized void SendMail() {
+    public synchronized boolean SendMail(SmallMail mail) {
         if (!isInitialized) {
             Initialize();
         }
 
+        if (!addSent(mail.getSender(), mail)) {
+            return false;
+        }
+
+        boolean result = true;
+        for (String receiver : mail.getReceiverList()) {
+            result &= addReceived(receiver, mail);
+        }
+
+        return result;
     }
 
     public synchronized List<Mail> PollMail() {
@@ -140,13 +143,118 @@ public enum DatabaseHandler {
 
         return null;
     }
+    //endregion
 
-    private synchronized List<Mail> readEmails(List<MailBoxChunk> chunks) {
-        List<Mail> mails = new ArrayList<Mail>();
+    //region QueryUtils
+    private synchronized List<Mail> getMailsRange(List<ChunkRange> ranges, String dirPath) {
+        List<Mail> mails = new ArrayList<>();
 
-        //READ FROM FILE CHUNKS
+        for (ChunkRange range : ranges) {
+            int from = range.getStart();
+            int to = range.getEnd();
+            UUID chunkID = range.getId();
+            MailBoxChunk chunk = GetMailboxChunk(chunkID, dirPath);
+            if (chunk != null) {
+                mails.addAll(chunk.getMailFromTo(from, to));
+            }
+        }
 
         return mails;
+    }
+    //endregion
+
+    //region Accounts
+    public synchronized boolean createAccount(String mail) {
+        LOGGER.info("Creating new account : " + mail);
+        if (!isInitialized) {
+            Initialize();
+        }
+
+        try {
+            boolean result = accounts.addMail(mail);
+            if (result) {
+                MAPPER.writeValue(USER_FILE(), accounts.getMails());
+            }
+
+            MailBox mailBox = CreateMailBox(mail);
+            result &= mailBox != null;
+
+            return result;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /*public synchronized boolean DeleteAccount(String mail) {
+        LOGGER.info("Deleting existing account : " + mail);
+        if (!isInitialized) {
+            Initialize();
+        }
+
+        return true;
+    }*/
+    //endregion
+
+    //region AddMail
+    private synchronized boolean addSent(String mail, SmallMail smallMail) {
+        return addMail(mail, smallMail, getSentChunksPath(mail));
+    }
+
+    private synchronized boolean addReceived(String mail, SmallMail smallMail) {
+        return addMail(mail, smallMail, getReceivedChunksPath(mail));
+    }
+
+    private synchronized boolean addMail(String mail, SmallMail smallMail, String dir) {
+        if (!accounts.mailExists(mail)) {
+            return false;
+        }
+
+        Mail newMail = new Mail(smallMail);
+        MailBox mailBox = getMailBox(mail);
+        if (mailBox == null) {
+            return false;
+        }
+
+        UUID chunkID;
+        if (mail.equals(smallMail.getSender())) {
+            chunkID = mailBox.addSent();
+        } else {
+            chunkID = mailBox.addReceived();
+        }
+
+        newMail.setChunkID(chunkID);
+        MailBoxChunk chunk = GetMailboxChunk(chunkID, dir);
+
+        if (chunk == null) {
+            chunk = CreateMailboxChunk(chunkID, mail, dir);
+        }
+
+        if (chunk == null) {
+            return false;
+        }
+
+        chunk.AddMail(newMail);
+        return SaveMailBox(mailBox) && SaveMailboxChunk(chunk, dir);
+    }
+    //endregion
+
+    //region Accounts
+    private synchronized boolean LoadAccounts() {
+        try {
+            LOGGER.info("Loading accounts...");
+            File userFile = USER_FILE();
+            if (!userFile.exists()) {
+                MAPPER.writeValue(userFile, new ArrayList<>());
+            }
+
+            accounts.setMails(MAPPER.readValue(userFile, List.class));
+            LOGGER.info("Accounts loaded successfully");
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public synchronized String checkUser(String mail) {
@@ -158,20 +266,6 @@ public enum DatabaseHandler {
             return GenerateToken(mail);
         } else {
             return null;
-        }
-    }
-
-    public synchronized boolean addUser(String mail) {
-        try {
-            boolean result = accounts.addMail(mail);
-            if (result) {
-                MAPPER.writeValue(USER_FILE(), accounts.getMails());
-            }
-
-            return result;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
         }
     }
 
@@ -195,21 +289,146 @@ public enum DatabaseHandler {
     public List<String> getAccountsList() {
         return accounts.getMails();
     }
+    //endregion
 
-    private synchronized boolean LoadAccounts() {
+    //region PathUtils
+
+    private String getMailboxDir(String mail) {
+        return DEFAULT_DIR() + "/" + mail;
+    }
+
+    private String getMailboxPath(String mail) {
+        return getMailboxDir(mail) + "/" + MAILBOX_FILE_NAME;
+    }
+
+    private String getReceivedChunksPath(String mail) {
+        return getMailboxDir(mail) + "/" + RECEIVED_CHUNKS_DIR_NAME;
+    }
+
+    private String getSentChunksPath(String mail) {
+        return getMailboxDir(mail) + "/" + SENT_CHUNKS_DIR_NAME;
+    }
+    //endregion
+
+    //region MailBox
+    private synchronized MailBox getMailBox(String mail) {
+        File mailBox = new File(getMailboxPath(mail));
         try {
-            LOGGER.info("Loading accounts...");
-            File userFile = USER_FILE();
-            if (!userFile.exists()) {
-                MAPPER.writeValue(userFile, new ArrayList<>());
+            if (!mailBox.exists()) {
+                return CreateMailBox(mail);
             }
 
-            accounts.setMails(MAPPER.readValue(userFile, List.class));
-            LOGGER.info("Accounts loaded successfully");
+            return MAPPER.readValue(mailBox, MailBox.class);
+        } catch (IOException e) {
+            LOGGER.severe("Can't read Mailbox file at " + mailBox.getAbsolutePath());
+            return null;
+        }
+    }
+
+    private synchronized MailBox CreateMailBox(String mail) {
+        try {
+            MailBox mailBox = new MailBox(mail);
+            File mailBoxDir = new File(DEFAULT_DIR(), mail);
+            if (!mailBoxDir.exists()) {
+                if (!mailBoxDir.mkdir()) {
+                    LOGGER.severe("Failed to create mailbox directory: " + mailBoxDir.getAbsolutePath());
+                    return null;
+                }
+            }
+
+            File mailBoxFile = new File(mailBoxDir, MAILBOX_FILE_NAME);
+            MAPPER.writeValue(mailBoxFile, mailBox);
+
+            File receivedDir = new File(mailBoxDir, RECEIVED_CHUNKS_DIR_NAME);
+            if (!receivedDir.mkdir()) {
+                LOGGER.severe("Failed to create chunks directory: " + receivedDir.getAbsolutePath());
+                return null;
+            }
+
+            File sentDir = new File(mailBoxDir, SENT_CHUNKS_DIR_NAME);
+            if (!sentDir.mkdir()) {
+                LOGGER.severe("Failed to create chunks directory: " + sentDir.getAbsolutePath());
+                return null;
+            }
+
+            return mailBox;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private synchronized boolean SaveMailBox(MailBox mailBox) {
+        try {
+            String mail = mailBox.getMail();
+            String mailBoxPath = getMailboxPath(mail);
+            File mailBoxFile = new File(mailBoxPath);
+            if (!mailBoxFile.exists()) {
+                MailBox temp = CreateMailBox(mail);
+                if (temp == null) {
+                    return false;
+                }
+            }
+
+            MAPPER.writeValue(mailBoxFile, mailBox);
             return true;
         } catch (IOException e) {
+            LOGGER.severe("Can't Save MailBox for mail :" + mailBox.getMail());
             e.printStackTrace();
             return false;
         }
     }
+
+    //endregion
+
+    //region MailBoxChunk
+    private synchronized MailBoxChunk CreateMailboxChunk(UUID id, String mail, String path) {
+        try {
+            File chunkFile = new File(path, id + ".json");
+
+            //IF already exists just return the existing one
+            if (chunkFile.exists()) {
+                return MAPPER.readValue(chunkFile, MailBoxChunk.class);
+            }
+
+            MailBoxChunk chunk = new MailBoxChunk(id, mail);
+            MAPPER.writeValue(chunkFile, chunk);
+            return chunk;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private synchronized MailBoxChunk GetMailboxChunk(UUID id, String dirPath) {
+        try {
+            if (id == null) {
+                return null;
+            }
+
+            File chunkFile = new File(dirPath, id + ".json");
+            if (!chunkFile.exists()) {
+                return null;
+            }
+
+            return MAPPER.readValue(chunkFile, MailBoxChunk.class);
+        } catch (IOException e) {
+            LOGGER.severe("Can't read Chunk file. Potential different version, clean the database to continue.");
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private synchronized boolean SaveMailboxChunk(MailBoxChunk chunk, String dirPath) {
+        try {
+            MAPPER.writeValue(new File(dirPath, chunk.getChunkID() + ".json"), chunk);
+            return true;
+        } catch (IOException e) {
+            LOGGER.severe("Can't save chunk");
+            e.printStackTrace();
+            return false;
+        }
+    }
+    //endregion
+
 }

@@ -1,5 +1,6 @@
 package com.server.models.threads;
 
+import com.server.models.ProgApplication;
 import communication.Response;
 import utils.ConnectionInfo;
 
@@ -22,16 +23,18 @@ public class SocketHandler extends Thread {
     private static ConcurrentMap<UUID, MailHandlerSocket> idToSocket = new ConcurrentHashMap<>();
     private static ConcurrentMap<String, List<MailHandlerSocket>> mailToSocketList = new ConcurrentHashMap<>();
 
+    private ServerSocket serverSocket;
 
     @Override
     public void run() {
         try {
-            ServerSocket serverSocket = new ServerSocket(ConnectionInfo.SERVER_PORT);
+            serverSocket = new ServerSocket(ConnectionInfo.SERVER_PORT);
             LOGGER.info("Server listening on port " + ConnectionInfo.SERVER_PORT);
             while (!Thread.currentThread().isInterrupted()) {
                 Socket connection = serverSocket.accept();
                 if (Thread.currentThread().isInterrupted()) {
                     connection.close();
+                    System.out.println("CLOSE!");
                     return;
                 }
 
@@ -46,7 +49,7 @@ public class SocketHandler extends Thread {
             }
             serverSocket.close();
         } catch (IOException e) {
-            LOGGER.warning("Server stopped listening due to IOException.");
+            LOGGER.info("Server stopped listening on port " + ConnectionInfo.SERVER_PORT);
         }
     }
 
@@ -114,7 +117,7 @@ public class SocketHandler extends Thread {
 
     @Override
     public void interrupt() {
-        System.out.println("Clearing sub-threads and interrupting.");
+        LOGGER.info("Clearing sub-threads and interrupting.");
         //KillAll Sub-Threads
         idToSocket.forEach((key, value) -> {
             value.interrupt();
@@ -123,6 +126,14 @@ public class SocketHandler extends Thread {
         //ClearMaps
         mailToSocketList.clear();
         idToSocket.clear();
+
+        if (serverSocket != null && !serverSocket.isClosed()) {
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                //Don't handle it
+            }
+        }
         super.interrupt();
     }
 

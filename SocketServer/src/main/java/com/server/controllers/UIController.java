@@ -3,6 +3,7 @@ package com.server.controllers;
 import com.server.models.DatabaseHandler;
 import com.server.models.LogHandler;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -31,16 +32,16 @@ public class UIController {
     @FXML
     private VBox mailListBox;
 
-    private LogHandler handler;
-
-    private boolean autoScroll = true;
-
     @FXML
     private TextField newMailText;
 
     @FXML
     private Label errorText;
 
+    private LogHandler handler;
+
+    private boolean autoScroll = true;
+    
     @FXML
     private void initialize() {
         HideErrorText();
@@ -92,14 +93,7 @@ public class UIController {
 
     private void InitializeMailHandler() {
 
-        DatabaseHandler.INSTANCE.addAccountsListener((observable, oldValue, newValue) -> {
-            mailListBox.getChildren().clear();
-            for (String mail : newValue) {
-                Label label = new Label(mail);
-                label.setStyle(MAIL_LABEL_STYLE);
-                mailListBox.getChildren().add(label);
-            }
-        });
+        DatabaseHandler.INSTANCE.addAccountsListener(OnMailListChanged);
     }
 
     @FXML
@@ -112,7 +106,7 @@ public class UIController {
             return;
         }
 
-        if (DatabaseHandler.INSTANCE.addUser(newMail)) {
+        if (DatabaseHandler.INSTANCE.createAccount(newMail)) {
             newMailText.clear();
         } else {
             ShowErrorText("Mail gia presente!");
@@ -141,4 +135,20 @@ public class UIController {
 
         return true;
     }
+
+    //Change Listener Function
+    private ChangeListener<List<String>> OnMailListChanged = (observable, oldValue, newValue) -> {
+        mailListBox.getChildren().clear();
+        for (String mail : newValue) {
+            Label label = new Label(mail);
+            label.setStyle(MAIL_LABEL_STYLE);
+            mailListBox.getChildren().add(label);
+        }
+    };
+
+    @FXML
+    private void onClose() {
+        DatabaseHandler.INSTANCE.removeAccountsListener(OnMailListChanged);
+    }
+
 }

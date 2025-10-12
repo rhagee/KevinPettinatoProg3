@@ -1,10 +1,13 @@
 package communication;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.util.*;
 
 public class MailBox implements Serializable {
 
+    @JsonIgnore
     private static final int CHUNK_SIZE = 50;
 
     private String mail;
@@ -129,18 +132,25 @@ public class MailBox implements Serializable {
     //In case the caller will try to search for a file with this UUID and can't find it
     //It will be entitled of creating the new file and will be "obvious" that the chunk is a new one
     private UUID addToChunk(LinkedHashMap<UUID, Integer> bucket) {
+        //Empty Bucket
+        if (bucket.isEmpty()) {
+            return createChunk(bucket);
+        }
+
+        //First Chunk is Full
         UUID firstID = bucket.firstEntry().getKey();
         if (bucket.get(firstID) >= CHUNK_SIZE) {
             return createChunk(bucket);
         }
 
+        //AddElement to current first chunk
         bucket.merge(firstID, 1, Integer::sum);
         return firstID;
     }
 
     private UUID createChunk(LinkedHashMap<UUID, Integer> bucket) {
         UUID id = UUID.randomUUID();
-        bucket.putFirst(UUID.randomUUID(), 1);
+        bucket.putFirst(id, 1);
         return id;
     }
 
