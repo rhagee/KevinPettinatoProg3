@@ -46,7 +46,7 @@ public class ProgApplication extends Application {
         mail.setSubject("Invio Mail Test");
         mail.setMessage("Ciao questa è una mail di prova!");
 
-        DatabaseHandler.INSTANCE.SendMail(mail);
+        DatabaseHandler.INSTANCE.sendMail(mail);
         //ENDTEST
 
     }

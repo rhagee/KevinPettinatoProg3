@@ -8,7 +8,7 @@ import java.util.*;
 public class MailBox implements Serializable {
 
     @JsonIgnore
-    private static final int CHUNK_SIZE = 50;
+    private static final int CHUNK_SIZE = 2; //Supposed to be 50 -> Setting 2 for "HARD" testing
 
     private String mail;
 

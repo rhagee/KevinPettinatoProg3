@@ -2,6 +2,7 @@ package com.server.models.threads;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.server.models.DatabaseHandler;
+import communication.QueryResult;
 import communication.Request;
 import communication.Response;
 import utils.RequestCodes;
@@ -91,13 +92,14 @@ public class MailHandlerSocket extends Thread {
         }
 
         String mail = (String) request.getPayload();
-        String token = DatabaseHandler.INSTANCE.checkUser(mail);
-        if (token == null) {
+        QueryResult<String> result = DatabaseHandler.INSTANCE.authUser(mail);
+        if (result.isError()) {
             LOGGER.log(Level.INFO, "Email : " + mail + " is not a valid account");
-            SendObject(new Response<>(request.getRequestID(), "", ResponseCodes.UNAUTHORIZED));
+            SendObject(new Response<>(request.getRequestID(), "", ResponseCodes.UNAUTHORIZED, result.getMessage()));
             return;
         }
 
+        String token = result.getPayload();
         this.mail = mail;
         SocketHandler.registerMailHandler(mail, this);
         SendObject(new Response<>(request.getRequestID(), token, ResponseCodes.OK));

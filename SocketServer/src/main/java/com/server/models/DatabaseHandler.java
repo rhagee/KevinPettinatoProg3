@@ -24,8 +24,10 @@ public enum DatabaseHandler {
 
     //region Constants
     private static final Logger LOGGER = Logger.getLogger("DatabaseHandler");
+
     private static final String secret = "PROG3EXAM";
     private static final String issuer = "MailServer";
+
     public static final String dbName = "MailServer_Database";
     private static final String USERS_FILE_NAME = "users.json";
     private static final String MAILBOX_FILE_NAME = "mailbox.json";
@@ -110,38 +112,80 @@ public enum DatabaseHandler {
     //endregion
 
     //region Query
-    public synchronized List<Mail> GetMailPage() {
 
-        if (!isInitialized) {
-            Initialize();
-        }
+    public synchronized QueryResult<String> authUser(String mail) {
+        QueryResult<String> result = new QueryResult<>();
 
-        return null;
-    }
-
-    public synchronized boolean SendMail(SmallMail mail) {
-        if (!isInitialized) {
-            Initialize();
-        }
-
-        if (!addSent(mail.getSender(), mail)) {
-            return false;
-        }
-
-        boolean result = true;
-        for (String receiver : mail.getReceiverList()) {
-            result &= addReceived(receiver, mail);
+        if (accounts.authMail(mail)) {
+            String token = GenerateToken(mail);
+            result.SetSuccessPayload(token);
+        } else {
+            result.Error("Mail non presente nel sistema!");
         }
 
         return result;
     }
 
-    public synchronized List<Mail> PollMail() {
+    public synchronized QueryResult<List<Mail>> getMailPage() {
+
         if (!isInitialized) {
             Initialize();
         }
 
         return null;
+    }
+
+    public synchronized QueryResult<?> sendMail(SmallMail mail) {
+
+        QueryResult<Mail> result = new QueryResult<>();
+
+        if (!isInitialized) {
+            Initialize();
+        }
+
+        //Should be checked client-side but just safe check here
+        if (mail.getReceiverList() == null) {
+            LOGGER.info("Impossibile inviare email di " + mail.getSender() + ". Nessun destinatario nella mail.");
+            result.Error("Email ricevuta senza destinatari. Si prega di scrivere almeno 1 destinatario.");
+            return result;
+        }
+
+        //Check for existing receivers
+        List<String> unknownMails = new ArrayList<>();
+        for (String receiver : mail.getReceiverList()) {
+            if (!accounts.mailExists(receiver)) {
+                unknownMails.add(receiver);
+            }
+        }
+
+        //If there are non existing receivers
+        if (!unknownMails.isEmpty()) {
+            LOGGER.info("Impossibile inviare email di " + mail.getSender() + ". Non trovati : " + unknownMails.size() + "/" + mail.getReceiverList().size());
+            result.Error("Mail non riconosciute : " + String.join(",", unknownMails));
+            return result;
+        }
+
+        //If can't add to sent
+        if (!addSent(mail.getSender(), mail)) {
+            LOGGER.info("Impossibile inviare la mail di " + mail.getSender() + ". Errore nella fase di aggiunta invio.");
+            result.Error("Impossibile inviare la mail.");
+            return result;
+        }
+
+        //Try to send to everyone
+        List<String> notReceivedList = new ArrayList<>();
+        for (String receiver : mail.getReceiverList()) {
+            if (!addReceived(receiver, mail)) {
+                notReceivedList.add(receiver);
+            }
+        }
+
+        if (!notReceivedList.isEmpty()) {
+            LOGGER.warning("Errore imprevisto, impossibile inviare ad alcuni destinatari.");
+            result.Success("Errore imprevisto, impossibile inviare ai destinatari " + String.join(",", notReceivedList));
+        }
+
+        return result;
     }
     //endregion
 
@@ -254,18 +298,6 @@ public enum DatabaseHandler {
         } catch (IOException e) {
             e.printStackTrace();
             return false;
-        }
-    }
-
-    public synchronized String checkUser(String mail) {
-        if (accounts == null) {
-            return null;
-        }
-
-        if (accounts.authMail(mail)) {
-            return GenerateToken(mail);
-        } else {
-            return null;
         }
     }
 
