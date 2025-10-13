@@ -69,9 +69,6 @@ public class MailHandlerSocket extends Thread {
             case RequestCodes.SEND:
                 OnSend(request);
                 break;
-            case RequestCodes.POLLING:
-                OnPoll(request);
-                break;
             case RequestCodes.DELETE:
                 OnDelete(request);
                 break;

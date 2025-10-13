@@ -60,6 +60,10 @@ public class SmallMail implements Serializable {
         return sender;
     }
 
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
+
     public List<String> getReceiverList() {
         return receiverList;
     }

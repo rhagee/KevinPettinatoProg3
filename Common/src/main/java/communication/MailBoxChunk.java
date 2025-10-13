@@ -34,12 +34,12 @@ public class MailBoxChunk implements Serializable {
         this.mailList.addFirst(newMail);
     }
 
-    public void RemoveMail(Mail toRemove) {
-        RemoveMail(toRemove.getId());
+    public boolean RemoveMail(Mail toRemove) {
+        return RemoveMail(toRemove.getId());
     }
 
-    public void RemoveMail(UUID idToRemove) {
-        this.mailList.removeIf(mail -> mail.getId().equals(idToRemove));
+    public boolean RemoveMail(UUID idToRemove) {
+        return this.mailList.removeIf(mail -> mail.getId().equals(idToRemove));
     }
 
     public int size() {

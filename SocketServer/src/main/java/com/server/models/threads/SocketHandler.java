@@ -59,9 +59,12 @@ public class SocketHandler extends Thread {
 
 
     public static void sendMail(String mail, Response<?> res) {
-        mailToSocketList.get(mail).forEach((element) -> {
-            element.sendMail(res);
-        });
+        List<MailHandlerSocket> socketList = mailToSocketList.get(mail);
+        if (socketList != null) {
+            socketList.forEach((element) -> {
+                element.sendMail(res);
+            });
+        }
     }
 
     public static void registerMailHandler(String mail, MailHandlerSocket handler) {

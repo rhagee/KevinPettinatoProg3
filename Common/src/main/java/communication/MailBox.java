@@ -53,6 +53,14 @@ public class MailBox implements Serializable {
         this.mail = mail;
     }
 
+    public Integer getMaxPages(int pageSize) {
+        if (pageSize == 0) {
+            return 1;
+        }
+
+        return Math.max(1, (received + pageSize - 1) / pageSize);
+    }
+
     public int getReceived() {
         return received;
     }
@@ -114,6 +122,10 @@ public class MailBox implements Serializable {
         sent++;
     }
 
+    public void DecrementSent() {
+        sent--;
+    }
+
     public UUID addSent() {
         IncrementSent();
         return addToChunk(sentBucket);
@@ -160,6 +172,42 @@ public class MailBox implements Serializable {
 
     public List<ChunkRange> getSentChunks(int startElementIndex, int elements) {
         return getChunks(startElementIndex, elements, sentBucket);
+    }
+
+    public boolean deleteReceivedMail(UUID id, boolean isRead) {
+
+        boolean result = deleteMail(id, receivedBucket);
+        if (result) {
+            DecrementReceived();
+            if (!isRead) {
+                DecrementToRead();
+            }
+        }
+
+        return result;
+    }
+
+    public boolean deleteSentMail(UUID id) {
+        boolean result = deleteMail(id, sentBucket);
+        if (result) {
+            DecrementSent();
+        }
+        return result;
+    }
+
+    private boolean deleteMail(UUID id, LinkedHashMap<UUID, Integer> map) {
+        if (!map.containsKey(id)) {
+            return false;
+        }
+
+        int value = map.get(id);
+        if (value <= 1) {
+            map.remove(id);
+        } else {
+            map.put(id, value - 1);
+        }
+
+        return true;
     }
 
     private List<ChunkRange> getChunks(int startElementIndex, int elements, LinkedHashMap<UUID, Integer> bucket) {
