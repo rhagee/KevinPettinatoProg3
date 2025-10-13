@@ -48,7 +48,7 @@ public enum DatabaseHandler {
     private boolean isInitialized = false;
     //endregion
 
-    //region DIR_UTILS
+    //region DirUtils
     private static File USER_FILE() {
         if (CACHED_USER_FILE != null) {
             return CACHED_USER_FILE;
@@ -207,39 +207,6 @@ public enum DatabaseHandler {
     }
     //endregion
 
-    //region Accounts
-    public synchronized boolean createAccount(String mail) {
-        LOGGER.info("Creating new account : " + mail);
-        if (!isInitialized) {
-            Initialize();
-        }
-
-        try {
-            boolean result = accounts.addMail(mail);
-            if (result) {
-                MAPPER.writeValue(USER_FILE(), accounts.getMails());
-            }
-
-            MailBox mailBox = CreateMailBox(mail);
-            result &= mailBox != null;
-
-            return result;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    /*public synchronized boolean DeleteAccount(String mail) {
-        LOGGER.info("Deleting existing account : " + mail);
-        if (!isInitialized) {
-            Initialize();
-        }
-
-        return true;
-    }*/
-    //endregion
-
     //region AddMail
     private synchronized boolean addSent(String mail, SmallMail smallMail) {
         return addMail(mail, smallMail, getSentChunksPath(mail));
@@ -284,6 +251,28 @@ public enum DatabaseHandler {
     //endregion
 
     //region Accounts
+    public synchronized boolean createAccount(String mail) {
+        LOGGER.info("Creating new account : " + mail);
+        if (!isInitialized) {
+            Initialize();
+        }
+
+        try {
+            boolean result = accounts.addMail(mail);
+            if (result) {
+                MAPPER.writeValue(USER_FILE(), accounts.getMails());
+            }
+
+            MailBox mailBox = CreateMailBox(mail);
+            result &= mailBox != null;
+
+            return result;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private synchronized boolean LoadAccounts() {
         try {
             LOGGER.info("Loading accounts...");
