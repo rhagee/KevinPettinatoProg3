@@ -60,12 +60,21 @@ public class ProgApplication extends Application {
         }*/
 
 
-        String mail = "kevin@kevin.com";
+        /*String mail = "kevin@kevin.com";
         Mail toDelete = new Mail(UUID.fromString("dfb308a9-499c-41a3-9893-a76265f81ee4"));
         toDelete.setChunkID(UUID.fromString("14e31e83-b7b6-40cf-97c0-c9f5ece723c5"));
         toDelete.setSender("");
         toDelete.addReceiver(mail);
-        DatabaseHandler.INSTANCE.deleteMail(mail, toDelete);
+        DatabaseHandler.INSTANCE.deleteMail(mail, toDelete);*/
+
+
+        /*String mail = "kevin@kevin.com";
+        Mail toRead = new Mail(UUID.fromString("cb2870fc-e6a2-43b8-a5ec-57bcf587e35c"));
+        toRead.setChunkID(UUID.fromString("a9af3508-7754-42d7-9c28-4bfb8f4a34b3"));
+        toRead.setSender("");
+        toRead.addReceiver(mail);
+        DatabaseHandler.INSTANCE.readUnreadMail(mail, toRead, false);*/
+
         /*
         "sender": "test@test.com",
       "receiverList": ["kevin@kevin.com"],

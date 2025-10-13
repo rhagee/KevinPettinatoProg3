@@ -386,6 +386,75 @@ public enum DatabaseHandler {
             return result;
         }
     }
+
+    public synchronized QueryResult<?> readUnreadMail(String mail, Mail toRead, boolean read) {
+        QueryResult<?> result = new QueryResult<>();
+
+        try {
+            if (!isInitialized) {
+                Initialize();
+            }
+
+            if (!accounts.mailExists(mail)) {
+                LOGGER.info("La mail " + mail + " non è presente tra gli account.");
+                result.Error("Mail non riconosciuta");
+                return result;
+            }
+
+            File chunkFile = new File(getReceivedChunksPath(mail), toRead.getChunkID().toString() + ".json");
+            if (!chunkFile.exists()) {
+                LOGGER.severe("Il chunk di appartenenza della mail non esiste, errore inaspettato.");
+                result.Error("Errore durante il cambio stato della mail. Se il problema persiste contattare l'assistenza.");
+                return result;
+            }
+
+            MailBoxChunk chunk = MAPPER.readValue(chunkFile, MailBoxChunk.class);
+
+            if (chunk == null) {
+                LOGGER.severe("Impossibile caricare il chunk di appartenenza della mail da modificare.");
+                result.Error("Errore durante il cambio stato. Se il problema persiste contattare l'assistenza.");
+                return result;
+            }
+
+            //If fails to readUnread return success
+            if (!chunk.readUnreadMail(toRead, read)) {
+                LOGGER.severe("Mail non trovata nel chunk oppure mail con stato uguale a quell desiderato.");
+                result.Success("Lo stato della mail non può essere cambiato.");
+                return result;
+            }
+
+            File mailBoxFile = new File(getMailboxPath(mail));
+            if (!mailBoxFile.exists()) {
+                LOGGER.severe("Impossibile trovare la mailbox di appartenenza della mail da modificare.");
+                result.Error("Errore durante il cambio stato. Se il problema persiste contattare l'assistenza.");
+                return result;
+            }
+
+            MailBox mailBox = MAPPER.readValue(mailBoxFile, MailBox.class);
+            if (mailBox == null) {
+                LOGGER.severe("La mailbox di appartenenza della mail da modificare è nulla, impossibile modificare.");
+                result.Error("Errore durante il cambio stato. Se il problema persiste contattare l'assistenza.");
+                return result;
+            }
+
+            if (read) {
+                mailBox.DecrementToRead();
+            } else {
+                mailBox.IncrementToRead();
+            }
+
+            MAPPER.writeValue(chunkFile, chunk);
+            MAPPER.writeValue(mailBoxFile, mailBox);
+
+            result.Success("");
+            return result;
+        } catch (IOException e) {
+            e.printStackTrace();
+            LOGGER.info("Errore sconosciuto durante la cancellazione della mail");
+            result.Error("Errore sconosciuto. Se l'errore persiste contattare l'assistenza.");
+            return result;
+        }
+    }
     //endregion
 
     //region QueryUtils

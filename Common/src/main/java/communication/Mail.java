@@ -52,15 +52,15 @@ public class Mail extends SmallMail implements Serializable {
         read = false;
     }
 
-    public void SetNow() {
+    public void setNow() {
         dateTime = LocalDateTime.now();
     }
 
-    public void OnUnread() {
+    public void onUnread() {
         read = false;
     }
 
-    public void OnRead() {
+    public void onRead() {
         read = true;
     }
 

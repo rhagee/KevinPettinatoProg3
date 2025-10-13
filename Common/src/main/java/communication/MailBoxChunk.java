@@ -82,4 +82,18 @@ public class MailBoxChunk implements Serializable {
         this.mailList = mailList;
     }
 
+    public boolean readUnreadMail(Mail toRead, boolean value) {
+        boolean found = false;
+        boolean wasEqual = false;
+        for (int i = 0; i < mailList.size() && !found; i++) {
+            Mail mail = mailList.get(i);
+            if (mail.getId().equals(toRead.getId())) {
+                found = true;
+                wasEqual = mail.getRead() == value;
+                mail.setRead(value);
+            }
+        }
+        return found && !wasEqual;
+    }
+
 }
