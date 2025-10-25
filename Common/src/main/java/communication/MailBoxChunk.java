@@ -10,8 +10,13 @@ public class MailBoxChunk implements Serializable {
     private String mail;
     private ArrayList<Mail> mailList = new ArrayList<>();
 
+
     public MailBoxChunk() {
-        this.chunkID = UUID.randomUUID();
+    }
+
+    public MailBoxChunk(UUID id, String mail) {
+        this.chunkID = id;
+        this.mail = mail;
     }
 
     public MailBoxChunk(String mail) {
@@ -29,12 +34,12 @@ public class MailBoxChunk implements Serializable {
         this.mailList.addFirst(newMail);
     }
 
-    public void RemoveMail(Mail toRemove) {
-        RemoveMail(toRemove.getId());
+    public boolean RemoveMail(Mail toRemove) {
+        return RemoveMail(toRemove.getId());
     }
 
-    public void RemoveMail(UUID idToRemove) {
-        this.mailList.removeIf(mail -> mail.getId().equals(idToRemove));
+    public boolean RemoveMail(UUID idToRemove) {
+        return this.mailList.removeIf(mail -> mail.getId().equals(idToRemove));
     }
 
     public int size() {
@@ -51,6 +56,44 @@ public class MailBoxChunk implements Serializable {
 
     public List<Mail> getMailFromTo(int start, int end) {
         return this.mailList.subList(start, getClampedEnd(end));
+    }
+
+    public UUID getChunkID() {
+        return chunkID;
+    }
+
+    public String getMail() {
+        return mail;
+    }
+
+    public List<Mail> getMailList() {
+        return mailList;
+    }
+
+    public void setChunkID(UUID id) {
+        this.chunkID = id;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
+    }
+
+    public void setMailList(ArrayList<Mail> mailList) {
+        this.mailList = mailList;
+    }
+
+    public boolean readUnreadMail(Mail toRead, boolean value) {
+        boolean found = false;
+        boolean wasEqual = false;
+        for (int i = 0; i < mailList.size() && !found; i++) {
+            Mail mail = mailList.get(i);
+            if (mail.getId().equals(toRead.getId())) {
+                found = true;
+                wasEqual = mail.getRead() == value;
+                mail.setRead(value);
+            }
+        }
+        return found && !wasEqual;
     }
 
 }

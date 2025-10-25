@@ -8,6 +8,7 @@ import javafx.stage.Stage;
 
 public class ProgApplication extends Application {
 
+    public static boolean APPLICATION_CLOSED = false;
     String[] fonts = {
             "Poppins-Black.ttf",
             "Poppins-BlackItalic.ttf",
@@ -42,6 +43,7 @@ public class ProgApplication extends Application {
 
     @Override
     public void stop() {
+        APPLICATION_CLOSED = true;
         System.out.println("Gracefully stopping threads and closing connection");
         SceneManager.get().StopBackendThread();
         BackendManager.INSTANCE.ClearConnection();

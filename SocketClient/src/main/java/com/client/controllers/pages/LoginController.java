@@ -12,6 +12,5 @@ public class LoginController {
     public void OnLogin() {
         SceneTransitions.SlideLeft(SceneNames.HOME);
         AlertManager.get().add("Benvenuto", "Login avvenuto con successo!", AlertType.SUCCESS);
-        AlertManager.get().OnConnectionFailed();
     }
 }

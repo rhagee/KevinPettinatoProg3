@@ -2,6 +2,7 @@ package com.client.models.BackendManagement;
 
 import com.client.models.AlertManagement.AlertManager;
 import com.client.models.AlertManagement.AlertType;
+import com.client.models.ProgApplication;
 import communication.Request;
 import communication.Response;
 import utils.ResponseCodes;
@@ -38,8 +39,16 @@ public class BackendEventReceiver implements Runnable {
                 HandleEvent(response);
             }
         } catch (IOException exception) {
-            BackendManager.INSTANCE.ConnectionDropped();
+            if (ProgApplication.APPLICATION_CLOSED) {
+                System.out.println("EventReceiver connection closed by Closing Application clean-up");
+                return;
+            }
+
+            new Thread(BackendManager.INSTANCE::ConnectionDropped).start();
         } catch (ClassNotFoundException | ClassCastException exception) {
+            if (ProgApplication.APPLICATION_CLOSED) {
+                return;
+            }
             AlertManager.get().add("Errore non riconosciuto", "Potenziale mismatch di versione tra il client ed il server, controllare.", AlertType.ERROR);
             exception.printStackTrace();
         } finally {

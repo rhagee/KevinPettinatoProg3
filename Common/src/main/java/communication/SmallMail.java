@@ -3,6 +3,7 @@ package communication;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class SmallMail implements Serializable {
@@ -39,19 +40,39 @@ public class SmallMail implements Serializable {
         this.sender = sender;
     }
 
-    public void AddReceiver(String receiver) {
+    public void addReceiver(String receiver) {
         receiverList.add(receiver);
     }
 
-    public void RemoveReceiver(String receiver) {
+    public void removeReceiver(String receiver) {
         receiverList.remove(receiver);
     }
 
-    public void SetSubject(String subject) {
+    public void setSubject(String subject) {
         this.subject = subject;
     }
 
-    public void SetMessage(String message) {
+    public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
+    }
+
+    public List<String> getReceiverList() {
+        return receiverList;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

@@ -9,10 +9,14 @@ public class Mail extends SmallMail implements Serializable {
     private UUID chunkID;
     private UUID id;
     private LocalDateTime dateTime;
-    private boolean read;
+    private Boolean read = false;
 
     public Mail() {
-        id = UUID.randomUUID();
+
+    }
+
+    public Mail(UUID id) {
+        this.id = id;
     }
 
     public Mail(Mail toCopy) {
@@ -48,16 +52,24 @@ public class Mail extends SmallMail implements Serializable {
         read = false;
     }
 
-    public void SetNow() {
+    public void setNow() {
         dateTime = LocalDateTime.now();
     }
 
-    public void OnUnread() {
+    public void onUnread() {
         read = false;
     }
 
-    public void OnRead() {
+    public void onRead() {
         read = true;
+    }
+
+    public Boolean getRead() {
+        return read;
+    }
+
+    public void setRead(Boolean read) {
+        this.read = read;
     }
 
     public UUID getId() {
