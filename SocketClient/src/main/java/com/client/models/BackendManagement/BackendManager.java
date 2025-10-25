@@ -1,5 +1,7 @@
 package com.client.models.BackendManagement;
 
+import com.client.models.AlertManagement.AlertManager;
+import com.client.models.AlertManagement.AlertType;
 import com.client.models.ProgApplication;
 import communication.Request;
 import communication.Response;
@@ -7,6 +9,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import utils.ConnectionInfo;
 import utils.RequestCodes;
+import utils.ResponseCodes;
 
 import java.io.*;
 import java.net.Socket;
@@ -14,6 +17,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 public enum BackendManager implements Runnable {
     INSTANCE;
@@ -36,6 +40,8 @@ public enum BackendManager implements Runnable {
     public ObjectProperty<ConnectionState> getState() {
         return state;
     }
+
+    private String token = null;
 
     @Override
     public void run() {
@@ -194,9 +200,18 @@ public enum BackendManager implements Runnable {
         return socketConnection != null && socketConnection.isConnected() && !socketConnection.isClosed() && in != null && out != null && eventThread != null && eventThread.isAlive();
     }
 
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public void clearToken() {
+        this.token = null;
+    }
+
     //Use the writerExecutor thread so we recycle one thread instead of instancing multiple
     public void trySubmitRequest(RequestCodes code, Object payload, CompletableFuture<Response<?>> callback) {
-        if (writerExecutor == null) {
+        if (writerExecutor == null || writerExecutor.isShutdown()) {
+            CompleteWithError(callback);
             return;
         }
 
@@ -204,18 +219,27 @@ public enum BackendManager implements Runnable {
             try {
                 if (!isConnectionSafe()) {
                     ConnectionDropped();
+                    CompleteWithError(callback);
                     return;
                 }
 
                 String id = UUID.randomUUID().toString();
-                Request<Object> request = new Request<>(id, payload, code);
+                Request<Object> request = new Request<>(id, payload, code, token);
                 eventHandler.AddPendingRequest(id, callback);
                 out.writeObject(request);
                 out.flush();
             } catch (IOException e) {
                 System.err.println("Fatal Error : IOException while sending request to back-end");
                 e.printStackTrace();
+                CompleteWithError(callback);
             }
         });
+    }
+
+
+    private void CompleteWithError(CompletableFuture<Response<?>> callback) {
+        Response<?> response = new Response<String>(null, null, ResponseCodes.DISCONNECTED);
+        callback.complete(response);
+        AlertManager.get().add("Errore di connessione", "Impossibile collegarsi al server. Riconnettersi e riprovare.", AlertType.ERROR);
     }
 }

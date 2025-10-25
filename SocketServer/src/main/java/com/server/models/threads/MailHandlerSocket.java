@@ -94,7 +94,7 @@ public class MailHandlerSocket extends Thread {
         String mail = (String) request.getPayload();
         QueryResult<String> result = DatabaseHandler.INSTANCE.authUser(mail);
         if (result.isError()) {
-            LOGGER.log(Level.INFO, "Email : " + mail + " is not a valid account");
+            LOGGER.info("Email : " + mail + " is not a valid account");
             SendObject(new Response<>(request.getRequestID(), "", ResponseCodes.UNAUTHORIZED, result.getMessage()));
             return;
         }
@@ -102,6 +102,8 @@ public class MailHandlerSocket extends Thread {
         String token = result.getPayload();
         this.mail = mail;
         SocketHandler.registerMailHandler(mail, this);
+        
+        LOGGER.info("Login with email : " + mail + " successful! Token generated and sent to client.");
         SendObject(new Response<>(request.getRequestID(), token, ResponseCodes.OK));
     }
 

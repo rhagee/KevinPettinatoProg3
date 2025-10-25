@@ -578,12 +578,12 @@ public enum DatabaseHandler {
     }
 
     public synchronized String GenerateToken(String email) throws JWTVerificationException {
-        return JWT.create().withIssuer(issuer).withPayload(email).sign(Algorithm.HMAC256(secret));
+        return JWT.create().withIssuer(issuer).withClaim("email", email).sign(Algorithm.HMAC256(secret));
     }
 
     public synchronized String DecodeToken(String token) throws JWTVerificationException {
         DecodedJWT jwt = jwtVerifier.verify(token);
-        return jwt.getPayload();
+        return jwt.getClaim("email").asString();
     }
 
     public void addAccountsListener(ChangeListener<List<String>> changeListener) {

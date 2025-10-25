@@ -95,7 +95,7 @@ public class SocketHandler extends Thread {
 
         List<MailHandlerSocket> list = mailToSocketList.get(mail);
         list.remove(handler);
-        LOGGER.info("Removed an handler for" + mail);
+        LOGGER.info("Removed an handler for " + mail);
         if (list.isEmpty()) {
             mailToSocketList.remove(mail);
             LOGGER.info("No handlers left for mail : " + mail + ", removing from HashMap");

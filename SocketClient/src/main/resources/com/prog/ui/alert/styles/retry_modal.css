@@ -7,7 +7,7 @@
 
 
 .connection-overlay-modal {
-    -fx-background-color: rgba(220, 220, 220, 1);
+    -fx-background-color: rgba(220, 220, 220, 0.8);
     -fx-max-width: 160;
     -fx-max-height: 40;
     -fx-padding: 8;
