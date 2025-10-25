@@ -46,16 +46,14 @@ public class LoginController {
             return;
         }
 
-        if (!(response.getPayload() instanceof String)) {
+        if (!(response.getPayload() instanceof String token)) {
             Platform.runLater(() -> {
                 AlertManager.get().add("Errore", "Autenticazione fallita.", AlertType.ERROR);
             });
             return;
         }
 
-        String token = (String) response.getPayload();
         BackendManager.INSTANCE.setToken(token);
-
         Platform.runLater(() -> {
             SceneTransitions.SlideLeft(SceneNames.HOME);
         });
