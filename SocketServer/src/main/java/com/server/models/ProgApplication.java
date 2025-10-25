@@ -77,11 +77,11 @@ public class ProgApplication extends Application {
 
         /*
         "sender": "test@test.com",
-      "receiverList": ["kevin@kevin.com"],
-      "subject": "Invio Mail Test 2",
-      "message": "Ciao questa è una mail di prova!",
-      "chunkID": "b53d0dbe-f742-4aad-bb33-779419c9d3e7",
-      "id": "fb8d81a8-e943-4160-a0b4-3a29e9c8b2a6"
+        "receiverList": ["kevin@kevin.com"],
+        "subject": "Invio Mail Test 2",
+        "message": "Ciao questa è una mail di prova!",
+        "chunkID": "b53d0dbe-f742-4aad-bb33-779419c9d3e7",
+        "id": "fb8d81a8-e943-4160-a0b4-3a29e9c8b2a6"
       */
 
         //ENDTEST

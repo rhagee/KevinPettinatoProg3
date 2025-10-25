@@ -128,7 +128,7 @@ public enum DatabaseHandler {
             return;
         }
 
-        LOGGER.info("DatabaseHandler Initialized successfully!");
+        LOGGER.info("DatabaseHandler Initialized successfully");
         isInitialized = true;
     }
     //endregion
@@ -140,7 +140,7 @@ public enum DatabaseHandler {
 
         if (accounts.authMail(mail)) {
             String token = GenerateToken(mail);
-            result.SetSuccessPayload(token);
+            result.setSuccessPayload(token);
         } else {
             result.Error("Mail non presente nel sistema!");
         }
@@ -148,7 +148,7 @@ public enum DatabaseHandler {
         return result;
     }
 
-    public synchronized QueryResult<Integer> getMailPagesNumber(String mail, int pageLength) {
+    public synchronized QueryResult<Integer> getMailPagesNumber(String mail, MailPageRequest pageRequest) {
         QueryResult<Integer> result = new QueryResult<>();
 
         try {
@@ -178,7 +178,9 @@ public enum DatabaseHandler {
                 return result;
             }
 
-            Integer pagesNumber = mailBox.getMaxPages(pageLength);
+
+            int pageLength = pageRequest.getQuantity();
+            Integer pagesNumber = pageRequest.isFromReceived() ? mailBox.getReceivedMaxPages(pageLength) : mailBox.getSentMaxPages(pageLength);
 
             result.Success("", pagesNumber);
             return result;
@@ -220,13 +222,16 @@ public enum DatabaseHandler {
                 return result;
             }
 
-            List<ChunkRange> chunkRanges = mailBox.getReceivedChunks(pageRequest.getStart(), pageRequest.getQuantity());
+
+            List<ChunkRange> chunkRanges = pageRequest.isFromReceived() ? mailBox.getReceivedChunks(pageRequest.getStart(), pageRequest.getQuantity()) : mailBox.getSentChunks(pageRequest.getStart(), pageRequest.getQuantity());
 
             List<Mail> mails = new ArrayList<>();
             for (ChunkRange range : chunkRanges) {
                 UUID id = range.getId();
-                String receivedChunksPath = getReceivedChunksPath(mail);
-                File chunkFile = new File(receivedChunksPath, id.toString() + ".json");
+
+                String chunkPath = pageRequest.isFromReceived() ? getReceivedChunksPath(mail) : getSentChunksPath(mail);
+                File chunkFile = new File(chunkPath, id.toString() + ".json");
+
                 if (chunkFile.exists()) {
                     MailBoxChunk mailBoxChunk = MAPPER.readValue(chunkFile, MailBoxChunk.class);
                     if (mailBoxChunk != null) {
@@ -248,7 +253,7 @@ public enum DatabaseHandler {
         }
     }
 
-    public synchronized QueryResult<?> sendMail(SmallMail mail) {
+    public synchronized QueryResult<Mail> sendMail(SmallMail mail) {
 
         QueryResult<Mail> result = new QueryResult<>();
 
@@ -285,7 +290,8 @@ public enum DatabaseHandler {
         }
 
         //If can't add to sent
-        if (!addSent(mail.getSender(), mail)) {
+        Mail completeMail = addSent(mail.getSender(), mail);
+        if (completeMail == null) {
             LOGGER.info("Impossibile inviare la mail di " + mail.getSender() + ". Errore nella fase di aggiunta invio.");
             result.Error("Impossibile inviare la mail.");
             return result;
@@ -304,6 +310,7 @@ public enum DatabaseHandler {
             result.Success("Errore imprevisto, impossibile inviare ai destinatari " + String.join(",", notReceivedList));
         }
 
+        result.setSuccessPayload(completeMail);
         return result;
     }
 
@@ -476,8 +483,8 @@ public enum DatabaseHandler {
     //endregion
 
     //region AddMail
-    private synchronized boolean addSent(String mail, SmallMail smallMail) {
-        return addMail(mail, smallMail, getSentChunksPath(mail)) != null;
+    private synchronized Mail addSent(String mail, SmallMail smallMail) {
+        return addMail(mail, smallMail, getSentChunksPath(mail));
     }
 
     private synchronized boolean addReceived(String mail, SmallMail smallMail) {

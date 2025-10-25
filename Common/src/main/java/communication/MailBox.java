@@ -53,12 +53,20 @@ public class MailBox implements Serializable {
         this.mail = mail;
     }
 
-    public Integer getMaxPages(int pageSize) {
+    public Integer getReceivedMaxPages(int pageSize) {
         if (pageSize == 0) {
             return 1;
         }
 
         return Math.max(1, (received + pageSize - 1) / pageSize);
+    }
+
+    public Integer getSentMaxPages(int pageSize) {
+        if (pageSize == 0) {
+            return 1;
+        }
+
+        return Math.max(1, (sent + pageSize - 1) / pageSize);
     }
 
     public int getReceived() {

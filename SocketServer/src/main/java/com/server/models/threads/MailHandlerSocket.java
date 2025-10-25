@@ -2,16 +2,16 @@ package com.server.models.threads;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.server.models.DatabaseHandler;
-import communication.QueryResult;
-import communication.Request;
-import communication.Response;
+import communication.*;
 import utils.RequestCodes;
 import utils.ResponseCodes;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -63,6 +63,9 @@ public class MailHandlerSocket extends Thread {
             case RequestCodes.AUTH:
                 OnAuth(request);
                 break;
+            case RequestCodes.PAGES:
+                OnPages(request);
+                break;
             case RequestCodes.RECEIVE:
                 OnReceive(request);
                 break;
@@ -106,24 +109,80 @@ public class MailHandlerSocket extends Thread {
         if (!isAuthenticated(request)) {
             return;
         }
+
+        if (!TypeCheck(request, MailPageRequest.class)) {
+            return;
+        }
+
+        MailPageRequest pageRequest = (MailPageRequest) request.getPayload();
+
+        QueryResult<List<Mail>> mailListResult = DatabaseHandler.INSTANCE.getMailPage(this.mail, pageRequest);
+        if (mailListResult.isError()) {
+            SendObject(new Response<>(request.getRequestID(), null, ResponseCodes.UNHANDLED, mailListResult.getMessage()));
+            return;
+        }
+
+        List<Mail> mailList = mailListResult.getPayload();
+
+        SendObject(new Response<>(request.getRequestID(), mailList, ResponseCodes.OK));
     }
 
-    private void OnPoll(Request<?> request) {
+    private void OnPages(Request<?> request) {
         if (!isAuthenticated(request)) {
             return;
         }
+
+        if (!TypeCheck(request, MailPageRequest.class)) {
+            return;
+        }
+
+        MailPageRequest pageRequest = (MailPageRequest) request.getPayload();
+        QueryResult<Integer> pagesNumberResult = DatabaseHandler.INSTANCE.getMailPagesNumber(this.mail, pageRequest);
+        if (pagesNumberResult.isError()) {
+            SendObject(new Response<>(request.getRequestID(), 0, ResponseCodes.UNHANDLED, pagesNumberResult.getMessage()));
+            return;
+        }
+
+        Integer pagesNumber = pagesNumberResult.getPayload();
+        SendObject(new Response<>(request.getRequestID(), pagesNumber, ResponseCodes.OK));
     }
 
     private void OnSend(Request<?> request) {
         if (!isAuthenticated(request)) {
             return;
         }
+
+        if (!TypeCheck(request, SmallMail.class)) {
+            return;
+        }
+
+        SmallMail toSend = (SmallMail) request.getPayload();
+        QueryResult<Mail> sendResult = DatabaseHandler.INSTANCE.sendMail(toSend);
+        if (sendResult.isError()) {
+            SendObject(new Response<>(request.getRequestID(), 0, ResponseCodes.UNHANDLED, sendResult.getMessage()));
+            return;
+        }
+
+        SendObject(new Response<>(request.getRequestID(), sendResult.getPayload(), ResponseCodes.OK));
     }
 
     private void OnDelete(Request<?> request) {
         if (!isAuthenticated(request)) {
             return;
         }
+
+        if (!TypeCheck(request, Mail.class)) {
+            return;
+        }
+
+        Mail toDelete = (Mail) request.getPayload();
+        QueryResult<?> deleteResult = DatabaseHandler.INSTANCE.deleteMail(this.mail, toDelete);
+        if (deleteResult.isError()) {
+            SendObject(new Response<>(request.getRequestID(), 0, ResponseCodes.UNHANDLED, deleteResult.getMessage()));
+            return;
+        }
+
+        SendObject(new Response<String>(request.getRequestID(), deleteResult.getMessage(), ResponseCodes.OK));
     }
 
     private boolean TypeCheck(Request<?> request, Class c) {

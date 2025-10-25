@@ -35,12 +35,12 @@ public class QueryResult<T> {
         this.payload = payload;
     }
 
-    public void SetSuccessPayload(T payload) {
+    public void setSuccessPayload(T payload) {
         Success("");
         this.payload = payload;
     }
 
-    public void SetErrorPayload(T payload) {
+    public void setErrorPayload(T payload) {
         Error("");
         this.payload = payload;
     }
