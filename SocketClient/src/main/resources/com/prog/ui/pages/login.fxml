@@ -9,6 +9,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
 
+<?import javafx.scene.effect.DropShadow?>
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.client.controllers.pages.LoginController" spacing="16" stylesheets="@login.css"
       style="-fx-background-color:#011f40 " alignment="CENTER" onMouseClicked="#RootPaneClick" fx:id="root">
@@ -17,6 +18,10 @@
             stylesheets="@login.css"
             maxHeight="500"
             maxWidth="800">
+        <effect>
+            <DropShadow radius="8" color="rgba(0,0,0,0.3)"/>
+        </effect>
+
         <Label
                 style="-fx-wrap-text: true; -fx-text-fill: #03376e;-fx-font-size: 26; -fx-font-weight:800"
                 text="Kmail"/>

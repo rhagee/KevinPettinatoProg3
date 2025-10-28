@@ -5,16 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.*;
 
-public class MailBox implements Serializable {
+public class MailBox extends MailBoxMetadata implements Serializable {
 
     @JsonIgnore
     private static final int CHUNK_SIZE = 2; //Supposed to be 50 -> Setting 2 for "HARD" testing
-
-    private String mail;
-
-    private int received = 0;
-    private int toRead = 0;
-    private int sent = 0;
 
     private LinkedHashMap<UUID, Integer> receivedBucket = new LinkedHashMap<>();
     private LinkedHashMap<UUID, Integer> sentBucket = new LinkedHashMap<>();
@@ -44,15 +38,6 @@ public class MailBox implements Serializable {
         this.sentBucket.putAll(toCopy.sentBucket);
     }
 
-
-    public String getMail() {
-        return mail;
-    }
-
-    public void setMail(String mail) {
-        this.mail = mail;
-    }
-
     public Integer getReceivedMaxPages(int pageSize) {
         if (pageSize == 0) {
             return 1;
@@ -69,31 +54,6 @@ public class MailBox implements Serializable {
         return Math.max(1, (sent + pageSize - 1) / pageSize);
     }
 
-    public int getReceived() {
-        return received;
-    }
-
-
-    public void setReceived(int received) {
-        this.received = received;
-    }
-
-    public int getToRead() {
-        return toRead;
-    }
-
-    public void setToRead(int toRead) {
-        this.toRead = toRead;
-    }
-
-    public int getSent() {
-        return sent;
-    }
-
-    public void setSent(int sent) {
-        this.sent = sent;
-    }
-
     public LinkedHashMap<UUID, Integer> getReceivedBucket() {
         return receivedBucket;
     }
@@ -108,30 +68,6 @@ public class MailBox implements Serializable {
 
     public void setSentBucket(LinkedHashMap<UUID, Integer> sentBucket) {
         this.sentBucket = sentBucket;
-    }
-
-    public void IncrementReceived() {
-        received++;
-    }
-
-    public void DecrementReceived() {
-        received--;
-    }
-
-    public void IncrementToRead() {
-        toRead++;
-    }
-
-    public void DecrementToRead() {
-        toRead--;
-    }
-
-    public void IncrementSent() {
-        sent++;
-    }
-
-    public void DecrementSent() {
-        sent--;
     }
 
     public UUID addSent() {

@@ -17,7 +17,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Consumer;
 
 public enum BackendManager implements Runnable {
     INSTANCE;
@@ -225,7 +224,9 @@ public enum BackendManager implements Runnable {
 
                 String id = UUID.randomUUID().toString();
                 Request<Object> request = new Request<>(id, payload, code, token);
-                eventHandler.AddPendingRequest(id, callback);
+                if (callback != null) {
+                    eventHandler.AddPendingRequest(id, callback);
+                }
                 out.writeObject(request);
                 out.flush();
             } catch (IOException e) {
@@ -238,6 +239,10 @@ public enum BackendManager implements Runnable {
 
 
     private void CompleteWithError(CompletableFuture<Response<?>> callback) {
+        if (callback == null) {
+            return;
+        }
+
         Response<?> response = new Response<String>(null, null, ResponseCodes.DISCONNECTED);
         callback.complete(response);
         AlertManager.get().add("Errore di connessione", "Impossibile collegarsi al server. Riconnettersi e riprovare.", AlertType.ERROR);

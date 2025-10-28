@@ -2,7 +2,11 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Button?>
 
-<VBox alignment="CENTER" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.client.controllers.pages.HomeController">
+<?import javafx.scene.layout.StackPane?>
+
+<?import com.client.controllers.components.SideMenu?>
+<StackPane alignment="CENTER" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.client.controllers.pages.HomeController">
+    <SideMenu fx:id="sideMenu"/>
     <Button onAction="#OnLogout" text="Logout"/>
-</VBox>
+</StackPane>

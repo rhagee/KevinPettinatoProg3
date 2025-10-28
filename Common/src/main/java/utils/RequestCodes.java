@@ -5,6 +5,8 @@ public enum RequestCodes {
     AUTH,
     SEND,
     RECEIVE,
-    PAGES,
-    DELETE
+    MAILBOX,
+    DELETE,
+    READ,
+    UNREAD
 }

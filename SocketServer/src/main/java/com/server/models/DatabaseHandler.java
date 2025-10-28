@@ -394,6 +394,18 @@ public enum DatabaseHandler {
         }
     }
 
+    public synchronized QueryResult<MailBoxMetadata> getMailBoxMetadata(String mail) {
+        QueryResult<MailBoxMetadata> result = new QueryResult<>();
+        MailBox mailBox = getMailBoxInternal(mail);
+        if (mailBox == null) {
+            result.setErrorPayload(null);
+            return result;
+        }
+
+        result.setSuccessPayload(mailBox);
+        return result;
+    }
+
     public synchronized QueryResult<?> readUnreadMail(String mail, Mail toRead, boolean read) {
         QueryResult<?> result = new QueryResult<>();
 
@@ -505,7 +517,7 @@ public enum DatabaseHandler {
         }
 
         Mail newMail = new Mail(smallMail);
-        MailBox mailBox = getMailBox(mail);
+        MailBox mailBox = getMailBoxInternal(mail);
         if (mailBox == null) {
             return null;
         }
@@ -600,7 +612,7 @@ public enum DatabaseHandler {
     //endregion
 
     //region MailBox
-    private synchronized MailBox getMailBox(String mail) {
+    private synchronized MailBox getMailBoxInternal(String mail) {
         File mailBox = new File(getMailboxPath(mail));
         try {
             if (!mailBox.exists()) {
