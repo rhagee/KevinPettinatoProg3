@@ -5,8 +5,13 @@
 <?import javafx.scene.layout.StackPane?>
 
 <?import com.client.controllers.components.SideMenu?>
+<?import com.client.controllers.components.MainView?>
+<?import javafx.scene.layout.HBox?>
 <StackPane alignment="CENTER" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
            fx:controller="com.client.controllers.pages.HomeController">
-    <SideMenu fx:id="sideMenu"/>
-    <Button onAction="#OnLogout" text="Logout"/>
+    <HBox>
+        <SideMenu fx:id="sideMenu"/>
+        <MainView fx:id="mainView"/>
+    </HBox>
+    <!-- <Button onAction="#OnLogout" text="Logout"/> -->
 </StackPane>

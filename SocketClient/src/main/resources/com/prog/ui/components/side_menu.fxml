@@ -2,7 +2,44 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.Label?>
 
-<fx:root type="javafx.scene.layout.Pane" xmlns="http://javafx.com/javafx"
-         xmlns:fx="http://javafx.com/fxml" prefWidth="300.0">
-    <Label fx:id="mail"/>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.control.Button?>
+<fx:root type="javafx.scene.layout.StackPane" xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml" prefWidth="250.0" maxHeight="Infinity" stylesheets="@side_menu.css"
+>
+    <VBox style="-fx-background-color: #01162c">
+        <effect>
+            <DropShadow offsetX="2" color="rgba(0,0,0,0.4)"/>
+        </effect>
+        <VBox style="-fx-border-width: 0px 0px 1px 0px; -fx-border-color: rgba(200,200,200,0.2); -fx-padding: 10"
+              maxHeight="300" spacing="20"
+              alignment="TOP_CENTER">
+            <ImageView fitHeight="80.0" fitWidth="80.0" preserveRatio="true">
+                <effect>
+                    <DropShadow radius="8" color="rgba(0,0,0,0.8)"/>
+                </effect>
+                <image>
+                    <Image url="@/assets/ProfileImageMale.png">
+
+                    </Image>
+                </image>
+            </ImageView>
+            <Label style="-fx-font-weight: 800; -fx-font-size: 16; -fx-text-fill: rgba(255,255,255,0.8)"
+                   fx:id="email"/>
+        </VBox>
+        <VBox spacing="5" style="-fx-padding: 15px 15px 10px 15px" VBox.vgrow="ALWAYS">
+            <Button maxHeight="100" styleClass="menu-voice" text="RICEVUTE" maxWidth="Infinity" userData="RECEIVED"
+                    fx:id="defaultMenuVoice"
+                    onAction="#onMenuVoiceSelected"/>
+            <Button maxHeight="100" styleClass="menu-voice" text="INVIATE" maxWidth="Infinity" userData="SENT"
+                    onAction="#onMenuVoiceSelected"/>
+            <Pane VBox.vgrow="ALWAYS" maxHeight="Infinity" maxWidth="Infinity">
+
+            </Pane>
+            <Button maxHeight="100" styleClass="menu-voice-logout" text="ESCI" maxWidth="Infinity"
+                    onAction="#onLogout"/>
+        </VBox>
+    </VBox>
 </fx:root>

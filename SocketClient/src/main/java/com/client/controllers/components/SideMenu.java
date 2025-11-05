@@ -1,38 +1,79 @@
 package com.client.controllers.components;
 
+import com.client.models.EmailManagement.MailBoxManager;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Pane;
 
-import java.io.IOException;
+public class SideMenu extends Component {
+    protected String RESOURCE_NAME = "/com/prog/ui/components/side_menu.fxml";
 
-public class SideMenu extends Pane {
+    private final String BUTTON_CLASS = "menu-voice";
+    private final String SELECTED_BUTTON_CLASS = "menu-voice-selected";
 
     @FXML
-    private Label mail;
+    private Label email;
+
+    @FXML
+    private Button defaultMenuVoice;
+
+    private Button selectedButton = null;
 
     public SideMenu() {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/prog/ui/components/side_menu.fxml"));
-
-        fxmlLoader.setRoot(this);
-        fxmlLoader.setController(this);
-
-        try {
-            fxmlLoader.load();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        initializeComponent(RESOURCE_NAME);
     }
 
     @FXML
     private void initialize() {
-
+        initializeBindings();
+        selectButtonInternal(defaultMenuVoice, true);
     }
 
-    public void InitMail(String input) {
-        System.out.println("SetMail " + input);
-        mail.setText(input);
+    @FXML
+    private void initializeBindings() {
+        email.textProperty().bind(MailBoxManager.INSTANCE.mailProperty());
     }
 
+    @FXML
+    private void onMenuVoiceSelected(ActionEvent event) {
+        Object source = event.getSource();
+
+        if (source instanceof Button clickedButton) {
+            selectButtonInternal(clickedButton, false);
+        }
+    }
+
+    private void selectButtonInternal(Button clickedButton, boolean forceRefresh) {
+        selectedButtonUITransition(clickedButton);
+        Object targetObj = clickedButton.getUserData();
+        if (targetObj instanceof String target) {
+            MailBoxManager.INSTANCE.requestPage(target, forceRefresh);
+        }
+    }
+
+    private void selectedButtonUITransition(Button newButton) {
+        changeUIState(selectedButton, false);
+        selectedButton = newButton;
+        changeUIState(selectedButton, true);
+    }
+
+    private void changeUIState(Button btn, boolean isOn) {
+        if (btn == null) {
+            return;
+        }
+
+        if (!isOn) {
+            btn.getStyleClass().remove(SELECTED_BUTTON_CLASS);
+            btn.getStyleClass().add(BUTTON_CLASS);
+        } else {
+            btn.getStyleClass().remove(BUTTON_CLASS);
+            btn.getStyleClass().add(SELECTED_BUTTON_CLASS);
+        }
+    }
+
+    @FXML
+    private void onLogout() {
+        MailBoxManager.INSTANCE.onLogout();
+    }
 }

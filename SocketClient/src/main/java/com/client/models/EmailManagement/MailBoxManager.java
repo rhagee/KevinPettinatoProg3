@@ -45,7 +45,7 @@ public enum MailBoxManager {
     private IntegerProperty received = new SimpleIntegerProperty(0);
     private IntegerProperty sent = new SimpleIntegerProperty(0);
 
-    private ObservableList<Mail> mailList = FXCollections.observableArrayList();
+    private ListProperty<Mail> mailList = new SimpleListProperty<>(FXCollections.observableArrayList());
     private ObjectProperty<PageStatus> status = new SimpleObjectProperty<>(PageStatus.RECEIVED);
     private IntegerProperty pageNumber = new SimpleIntegerProperty(0);
 
@@ -65,8 +65,8 @@ public enum MailBoxManager {
         return mail;
     }
 
-    public ObservableList<Mail> observableMailList() {
-        return mailList;
+    public ObservableList<Mail> getMailList() {
+        return mailList.get();
     }
 
     public ObjectProperty<PageStatus> statusProperty() {
@@ -88,6 +88,7 @@ public enum MailBoxManager {
 
     //#region PublicMethods
     public void onLogin(String inputMail) {
+        //TODO: ADD REGEX to check mail
         RequestAuthInternal(inputMail);
     }
 
@@ -106,6 +107,23 @@ public enum MailBoxManager {
             SceneTransitions.SlideRight(SceneNames.LOGIN);
             Clear();
         });
+    }
+
+    public void requestPage(String requestString, boolean forceRefresh) {
+        try {
+            PageStatus newStatus = PageStatus.valueOf(requestString);
+
+            if (!forceRefresh && newStatus == status.getValue()) {
+                return;
+            }
+
+            this.status.setValue(newStatus);
+            this.pageNumber.setValue(0);
+            RequestMailPageInternal();
+        } catch (IllegalArgumentException ex) {
+            System.err.println("Request string " + requestString + " is not a supported page!");
+        }
+
     }
 
     public void showSent() {
@@ -215,6 +233,7 @@ public enum MailBoxManager {
     //#region InternalRequests
 
     private void RequestAuthInternal(String authMail) {
+        this.mail.setValue(authMail);
         CompletableFuture<Response<?>> onCompleteFuture = new CompletableFuture<>();
         BackendManager.INSTANCE.trySubmitRequest(RequestCodes.AUTH, authMail, onCompleteFuture);
         onCompleteFuture.thenAccept(onAuthCompleteHandler);
@@ -256,10 +275,13 @@ public enum MailBoxManager {
     private final Consumer<Response<?>> onAuthCompleteHandler = response -> {
 
         if (response.getCode() == ResponseCodes.DISCONNECTED) {
+            this.mail.setValue(null);
             return;
         }
 
         if (response.getCode() != ResponseCodes.OK) {
+
+            this.mail.setValue(null);
             Platform.runLater(() -> {
                 AlertManager.get().add("Errore", "Autenticazione fallita.", AlertType.ERROR);
             });
@@ -267,6 +289,7 @@ public enum MailBoxManager {
         }
 
         if (!(response.getPayload() instanceof String token)) {
+            this.mail.setValue(null);
             Platform.runLater(() -> {
                 AlertManager.get().add("Errore", "Autenticazione fallita.", AlertType.ERROR);
             });
@@ -326,18 +349,13 @@ public enum MailBoxManager {
             return;
         }
 
-        if (!response.CheckPayloadType(List.class)) {
-            Platform.runLater(() -> {
-                AlertManager.get().add("Errore", "Impossibile aggiornare la lista delle e-mail", AlertType.ERROR);
-            });
-            isLoadingPage.setValue(false);
-            return;
-        }
-
         try {
             List<Mail> responseList = (List<Mail>) response.getPayload();
+            System.out.println(responseList.size());
             mailList.setAll(responseList);
         } catch (Exception e) {
+            e.printStackTrace();
+            //This should catch also the bad cast exception
             Platform.runLater(() -> {
                 AlertManager.get().add("Errore", "Impossibile aggiornare la lista delle e-mail", AlertType.ERROR);
             });

@@ -1,0 +1,26 @@
+.row-container {
+    -fx-padding: 10px 20px;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: rgba(0, 0, 0, 0.1);
+    -fx-background-color: transparent;
+}
+
+.row-container:hover {
+    -fx-background-color: rgba(100, 100, 100, 0.1);
+    -fx-cursor: hand;
+}
+
+.mail-label {
+    -fx-font-weight: 800;
+    -fx-text-fill: black;
+}
+
+.subject-label {
+    -fx-font-weight: 800;
+    -fx-text-fill: black;
+}
+
+.message-label {
+    -fx-font-weight: 600;
+    -fx-text-fill: rgba(0, 0, 0, 0.4);
+}

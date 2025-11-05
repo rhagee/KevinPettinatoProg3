@@ -1,46 +1,46 @@
 package com.client.models.EmailManagement;
 
 import com.client.models.AlertManagement.AlertType;
+import communication.Mail;
 import javafx.animation.PauseTransition;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
+
+import java.util.ArrayList;
 
 public class EmailItem {
-    private final String id;
-
-    private final StringProperty title = new SimpleStringProperty("");
+    private final StringProperty sender = new SimpleStringProperty("");
+    private final StringProperty subject = new SimpleStringProperty("");
+    private final ListProperty<String> receiverList = new SimpleListProperty<String>();
     private final StringProperty message = new SimpleStringProperty("");
-    private final ObjectProperty<AlertType> type = new SimpleObjectProperty<>(AlertType.INFO);
-    private final PauseTransition timer;
+    private final Mail mail;
 
-    public EmailItem(String id, String title, String message, AlertType type, PauseTransition timer) {
-        this.id = id;
-        this.title.set(title);
-        this.message.set(message);
-        this.type.set(type);
-        this.timer = timer;
+    public EmailItem(Mail mail) {
+        this.mail = mail;
+        this.sender.set(mail.getSender());
+        this.subject.set(mail.getSubject());
+        this.message.set(mail.getMessage());
+        this.receiverList.setAll(mail.getReceiverList());
     }
 
-    public String getId() {
-        return id;
+    public Mail getMail() {
+        return mail;
     }
 
-    public StringProperty titleProperty() {
-        return title;
+    public StringProperty senderProperty() {
+        return sender;
+    }
+
+    public StringProperty subjectProperty() {
+        return subject;
     }
 
     public StringProperty messageProperty() {
         return message;
     }
 
-    public ObjectProperty<AlertType> typeProperty() {
-        return type;
+    public ListProperty<String> receiverListProperty() {
+        return receiverList;
     }
 
-    public PauseTransition getTimer() {
-        return timer;
-    }
 
 }

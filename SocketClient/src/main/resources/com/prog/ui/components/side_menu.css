@@ -1,0 +1,49 @@
+
+.menu-voice {
+    -fx-border-width: 0;
+    -fx-border-color: rgba(0, 0, 0, 0);
+    -fx-padding: 6px 10px 6px 10px;
+    -fx-background-radius: 8;
+    -fx-background-color: rgba(0, 0, 0, 0);
+    -fx-alignment: center-left;
+    -fx-text-alignment: left;
+    -fx-font-size: 14;
+    -fx-font-weight: 600;
+    -fx-text-fill: white;
+}
+
+.menu-voice:hover {
+    -fx-cursor: hand;
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+}
+
+.menu-voice-logout {
+    -fx-border-width: 0;
+    -fx-border-color: rgba(0, 0, 0, 0);
+    -fx-padding: 6px 10px 6px 10px;
+    -fx-background-radius: 8;
+    -fx-background-color: rgba(0, 0, 0, 0);
+    -fx-alignment: center-left;
+    -fx-text-alignment: left;
+    -fx-font-size: 14;
+    -fx-font-weight: 800;
+    -fx-text-fill: #b52f3a;
+}
+
+.menu-voice-logout:hover {
+    -fx-cursor: hand;
+    -fx-background-color: rgba(181, 47, 58, 0.2);
+}
+
+.menu-voice-selected {
+    -fx-border-width: 0;
+    -fx-border-color: rgba(0, 0, 0, 0);
+    -fx-padding: 6px 10px 6px 10px;
+    -fx-background-radius: 8;
+    -fx-background-color: rgba(255, 255, 255, 1);
+    -fx-alignment: center-left;
+    -fx-text-alignment: left;
+    -fx-font-size: 14;
+    -fx-font-weight: 800;
+    -fx-text-fill: #01162c;
+}

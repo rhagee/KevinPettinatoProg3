@@ -1,7 +1,8 @@
 package com.client.controllers.email;
 
-import com.client.models.EmailManagement.EmailItem;
-import javafx.beans.binding.Bindings;
+import com.client.models.EmailManagement.MailBoxManager;
+import com.client.models.EmailManagement.PageStatus;
+import communication.Mail;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -11,28 +12,50 @@ public class EmailItemController {
     @FXML
     private HBox root;
     @FXML
-    private Label title, message;
+    private Label userMail, subject, message;
 
-    private EmailItem item;
+    private Mail mail;
 
-    public void bind(EmailItem item) {
-        if (this.item != null) {
-            title.textProperty().unbind();
+    public void bind(Mail newMail) {
+        if (this.mail != null) {
+            userMail.textProperty().unbind();
+            subject.textProperty().unbind();
             root.styleProperty().unbind();
             message.textProperty().unbind();
         }
 
-        this.item = item;
-        title.textProperty().bind(item.titleProperty());
-        message.textProperty().bind(item.messageProperty());
-        root.styleProperty().bind(
-                Bindings.createStringBinding(() -> switch (item.typeProperty().get()) {
-                            case ERROR -> "-fx-background-color: #ff5555;";
-                            case WARN -> "-fx-background-color: #ffcc00;";
-                            case INFO -> "-fx-background-color: #4caf50;";
-                            default -> "-fx-background-color: transparent";
-                        },
-                        item.typeProperty()
-                ));
+        setUserMail(newMail);
+        setEllipsesString(subject, newMail.getSubject(), 25);
+        setEllipsesString(message, newMail.getMessage(), 50);
+
+        mail = newMail;
+    }
+
+
+    private void setUserMail(Mail newMail) {
+        String userMailText = "";
+        switch (MailBoxManager.INSTANCE.statusProperty().getValue()) {
+            case PageStatus.SENT:
+                userMailText = String.join(", ", newMail.getReceiverList());
+                break;
+            case PageStatus.RECEIVED:
+                userMailText = newMail.getSender();
+            default:
+                break;
+        }
+
+        setEllipsesString(userMail, userMailText, 25);
+    }
+
+    private void setEllipsesString(Label target, String text, int maxChar) {
+        String finalText = text;
+
+        if (text.length() > maxChar) {
+            finalText = text.substring(0, maxChar);
+            finalText += "...";
+        }
+
+        target.setText(finalText);
+
     }
 }
