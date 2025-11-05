@@ -10,17 +10,45 @@
     -fx-cursor: hand;
 }
 
-.mail-label {
+.row-container .mail-label {
     -fx-font-weight: 800;
     -fx-text-fill: black;
 }
 
-.subject-label {
+.row-container .subject-label {
     -fx-font-weight: 800;
     -fx-text-fill: black;
 }
 
-.message-label {
+.row-container .message-label {
     -fx-font-weight: 600;
-    -fx-text-fill: rgba(0, 0, 0, 0.4);
+    -fx-text-fill: rgba(0, 0, 0, 0.6);
+}
+
+
+.row-container-read {
+    -fx-padding: 10px 20px;
+    -fx-border-width: 0 0 1px 0;
+    -fx-border-color: rgba(0, 0, 0, 0.1);
+    -fx-background-color: rgba(67, 125, 255, 0.1);
+}
+
+.row-container-read:hover {
+    -fx-background-color: rgba(67, 125, 255, 0.2);
+    -fx-cursor: hand;
+}
+
+.row-container-read .mail-label {
+    -fx-font-weight: 600;
+    -fx-text-fill: black;
+}
+
+.row-container-read .subject-label {
+    -fx-font-weight: 600;
+    -fx-text-fill: black;
+}
+
+.row-container-read .message-label {
+    -fx-font-weight: 600;
+    -fx-text-fill: rgba(0, 0, 0, 0.6);
 }

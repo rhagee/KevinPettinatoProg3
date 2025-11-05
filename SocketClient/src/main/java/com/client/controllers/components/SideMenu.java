@@ -1,6 +1,7 @@
 package com.client.controllers.components;
 
 import com.client.models.EmailManagement.MailBoxManager;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -8,6 +9,7 @@ import javafx.scene.control.Label;
 
 public class SideMenu extends Component {
     protected String RESOURCE_NAME = "/com/prog/ui/components/side_menu.fxml";
+    private final String DEFAULT_TEXT = "Posta in arrivo";
 
     private final String BUTTON_CLASS = "menu-voice";
     private final String SELECTED_BUTTON_CLASS = "menu-voice-selected";
@@ -32,7 +34,23 @@ public class SideMenu extends Component {
 
     @FXML
     private void initializeBindings() {
+
         email.textProperty().bind(MailBoxManager.INSTANCE.mailProperty());
+        OnToReadChanged(MailBoxManager.INSTANCE.toReadProperty().getValue());
+        MailBoxManager.INSTANCE.toReadProperty().addListener((observable, oldValue, newValue) -> {
+            OnToReadChanged(newValue);
+        });
+    }
+
+    private void OnToReadChanged(Number newValue) {
+        Platform.runLater(() -> {
+            int value = (int) newValue;
+            if (value > 0) {
+                defaultMenuVoice.setText(DEFAULT_TEXT + " (" + value + ")");
+            } else {
+                defaultMenuVoice.setText(DEFAULT_TEXT);
+            }
+        });
     }
 
     @FXML
@@ -42,6 +60,11 @@ public class SideMenu extends Component {
         if (source instanceof Button clickedButton) {
             selectButtonInternal(clickedButton, false);
         }
+    }
+
+    @FXML
+    private void onSendClicked(ActionEvent event) {
+
     }
 
     private void selectButtonInternal(Button clickedButton, boolean forceRefresh) {

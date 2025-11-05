@@ -16,6 +16,9 @@ public class EmailItemController {
 
     private Mail mail;
 
+    private final String TO_READ_STYLE = "row-container";
+    private final String READ_STYLE = "row-container-read";
+
     public void bind(Mail newMail) {
         if (this.mail != null) {
             userMail.textProperty().unbind();
@@ -27,6 +30,7 @@ public class EmailItemController {
         setUserMail(newMail);
         setEllipsesString(subject, newMail.getSubject(), 25);
         setEllipsesString(message, newMail.getMessage(), 50);
+        SetReadUnreadStyle(newMail.getRead());
 
         mail = newMail;
     }
@@ -36,7 +40,7 @@ public class EmailItemController {
         String userMailText = "";
         switch (MailBoxManager.INSTANCE.statusProperty().getValue()) {
             case PageStatus.SENT:
-                userMailText = String.join(", ", newMail.getReceiverList());
+                userMailText = "A: " + String.join(", ", newMail.getReceiverList());
                 break;
             case PageStatus.RECEIVED:
                 userMailText = newMail.getSender();
@@ -56,6 +60,15 @@ public class EmailItemController {
         }
 
         target.setText(finalText);
+    }
 
+    private void SetReadUnreadStyle(boolean toRead) {
+        if (MailBoxManager.INSTANCE.statusProperty().getValue() == PageStatus.SENT || !toRead) {
+            root.getStyleClass().remove(TO_READ_STYLE);
+            root.getStyleClass().add(READ_STYLE);
+        } else {
+            root.getStyleClass().remove(READ_STYLE);
+            root.getStyleClass().add(TO_READ_STYLE);
+        }
     }
 }

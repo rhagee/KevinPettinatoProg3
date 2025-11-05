@@ -5,10 +5,7 @@ import com.client.models.AlertManagement.AlertType;
 import com.client.models.BackendManagement.BackendManager;
 import com.client.models.SceneManagement.SceneNames;
 import com.client.models.SceneManagement.SceneTransitions;
-import communication.Mail;
-import communication.MailBoxMetadata;
-import communication.MailPageRequest;
-import communication.Response;
+import communication.*;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -36,7 +33,7 @@ public enum MailBoxManager {
     INSTANCE;
 
     //#region Constants
-    private static final int pageSize = 25;
+    public static final int pageSize = 25;
     //#endregion
 
     //#region PropertiesDeclarations
@@ -46,6 +43,7 @@ public enum MailBoxManager {
     private IntegerProperty sent = new SimpleIntegerProperty(0);
 
     private ListProperty<Mail> mailList = new SimpleListProperty<>(FXCollections.observableArrayList());
+    private IntegerProperty mailListSize = new SimpleIntegerProperty(0);
     private ObjectProperty<PageStatus> status = new SimpleObjectProperty<>(PageStatus.RECEIVED);
     private IntegerProperty pageNumber = new SimpleIntegerProperty(0);
 
@@ -75,6 +73,30 @@ public enum MailBoxManager {
 
     public IntegerProperty pageNumberProperty() {
         return pageNumber;
+    }
+
+    public IntegerProperty receivedProperty() {
+        return received;
+    }
+
+    public IntegerProperty sentProperty() {
+        return received;
+    }
+
+    public IntegerProperty toReadProperty() {
+        return toRead;
+    }
+
+    public IntegerProperty mailListSizeProperty() {
+        return mailListSize;
+    }
+
+    public BooleanProperty isLoadingMetadataProperty() {
+        return isLoadingMetadata;
+    }
+
+    public BooleanProperty isLoadingPageProperty() {
+        return isLoadingPage;
     }
 
     public ObjectProperty<Mail> getSelectedMailProperty() {
@@ -139,13 +161,35 @@ public enum MailBoxManager {
     }
 
     public void nextPage() {
+        if (getTotalPages() <= pageNumber.getValue() + 1) {
+            return;
+        }
+
         this.pageNumber.setValue(this.pageNumber.getValue() + 1);
         RequestMailPageInternal();
     }
 
     public void previousPage() {
+        if (pageNumber.getValue() == 0) {
+            return;
+        }
+
         this.pageNumber.setValue(this.pageNumber.getValue() - 1);
         RequestMailPageInternal();
+    }
+
+    public int getTotalPages() {
+        int totalMessages = status.getValue() == PageStatus.RECEIVED ? this.received.getValue() : this.sent.getValue();
+        System.out.println(totalMessages);
+        return (int) Math.ceil(totalMessages / (pageSize * 1d));
+    }
+
+    public boolean hasNextPage() {
+        return getTotalPages() > pageNumber.getValue() + 1;
+    }
+
+    public boolean hasPreviousPage() {
+        return pageNumber.getValue() > 0;
     }
 
     public void openNewMailModal() {
@@ -212,8 +256,8 @@ public enum MailBoxManager {
         this.mail = new SimpleStringProperty(mail);
         status.setValue(PageStatus.RECEIVED);
         pageNumber.setValue(0);
-        refresh();
         isInitialized = true;
+        refresh();
     }
 
     private void Clear() {
@@ -297,13 +341,13 @@ public enum MailBoxManager {
         }
 
         BackendManager.INSTANCE.setToken(token);
+        InitializeMailbox(this.mail.getValue());
         Platform.runLater(() -> {
             SceneTransitions.SlideLeft(SceneNames.HOME);
         });
     };
 
     private final Consumer<Response<?>> onMailboxMetadataReceived = response -> {
-
         if (response.getCode() == ResponseCodes.DISCONNECTED) {
             isLoadingMetadata.setValue(false);
             return;
@@ -317,21 +361,21 @@ public enum MailBoxManager {
             return;
         }
 
-        if (!response.CheckPayloadType(MailBoxMetadata.class)) {
+        try {
+            MailBoxMetadata metadata = (MailBoxMetadata) response.getPayload();
+
+            this.mail.setValue(metadata.getMail());
+            this.received.setValue(metadata.getReceived());
+            this.sent.setValue(metadata.getSent());
+            this.toRead.setValue(metadata.getToRead());
+        } catch (Exception e) {
+            //This should catch also the bad cast exception
             Platform.runLater(() -> {
                 AlertManager.get().add("Errore", "Impossibile aggiornare i metadata della mailbox", AlertType.ERROR);
             });
+        } finally {
             isLoadingMetadata.setValue(false);
-            return;
         }
-
-        MailBoxMetadata metadata = (MailBoxMetadata) response.getPayload();
-
-        this.mail.setValue(metadata.getMail());
-        this.received.setValue(metadata.getReceived());
-        this.sent.setValue(metadata.getSent());
-        this.toRead.setValue(metadata.getToRead());
-        isLoadingMetadata.setValue(false);
     };
 
     private final Consumer<Response<?>> onMailPageReceived = response -> {
@@ -351,10 +395,9 @@ public enum MailBoxManager {
 
         try {
             List<Mail> responseList = (List<Mail>) response.getPayload();
-            System.out.println(responseList.size());
+            mailListSize.setValue(responseList.size());
             mailList.setAll(responseList);
         } catch (Exception e) {
-            e.printStackTrace();
             //This should catch also the bad cast exception
             Platform.runLater(() -> {
                 AlertManager.get().add("Errore", "Impossibile aggiornare la lista delle e-mail", AlertType.ERROR);
