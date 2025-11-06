@@ -180,8 +180,11 @@ public enum MailBoxManager {
 
     public int getTotalPages() {
         int totalMessages = status.getValue() == PageStatus.RECEIVED ? this.received.getValue() : this.sent.getValue();
-        System.out.println(totalMessages);
         return (int) Math.ceil(totalMessages / (pageSize * 1d));
+    }
+
+    public int getTotalMails() {
+        return status.getValue() == PageStatus.RECEIVED ? this.received.getValue() : this.sent.getValue();
     }
 
     public boolean hasNextPage() {

@@ -18,19 +18,16 @@ public class MainView extends Component {
     protected String RESOURCE_NAME = "/com/prog/ui/components/main_view.fxml";
 
     @FXML
-    private Label title;
+    private Label title, emailCountText, page;
 
     @FXML
     private ListView<Mail> emailList;
 
     @FXML
-    private Label page;
-
-    @FXML
     private Button prevPage, nextPage;
 
     @FXML
-    private VBox emptyList, loadingList;
+    private VBox emptyList, loadingList, emailContainer;
 
     @FXML
     private HBox pageNumberContainer;
@@ -47,12 +44,14 @@ public class MainView extends Component {
 
     private void initializeBindings() {
         ChangeTitle(MailBoxManager.INSTANCE.statusProperty().getValue());
+        ChangePageSettings(MailBoxManager.INSTANCE.pageNumberProperty().getValue());
+        OnMailListUpdated(MailBoxManager.INSTANCE.mailListSizeProperty().getValue());
+
         MailBoxManager.INSTANCE.statusProperty().addListener((observable, oldValue, newValue) -> {
             ChangeTitle(newValue);
             ChangePageSettings(MailBoxManager.INSTANCE.pageNumberProperty().getValue());
         });
 
-        ChangePageSettings(MailBoxManager.INSTANCE.pageNumberProperty().getValue());
         MailBoxManager.INSTANCE.pageNumberProperty().addListener((observable, oldValue, newValue) -> {
             ChangePageSettings(newValue);
         });
@@ -106,25 +105,34 @@ public class MainView extends Component {
     private void ChangePageSettings(Number newPageNumber) {
         int pages = MailBoxManager.INSTANCE.getTotalPages();
         int currPage = (int) newPageNumber + 1;
-        String finalText = currPage + "/" + pages;
+        String pageNumberText = currPage + "/" + pages;
+
         Platform.runLater(() -> {
             prevPage.setDisable(!MailBoxManager.INSTANCE.hasPreviousPage());
             nextPage.setDisable(!MailBoxManager.INSTANCE.hasNextPage());
-            page.setText(finalText);
+            page.setText(pageNumberText);
         });
     }
 
     private void OnMailListUpdated(Number mailListSize) {
+
         int size = (int) mailListSize;
+        int currPage = MailBoxManager.INSTANCE.pageNumberProperty().getValue();
+        int fromMail = (currPage * MailBoxManager.pageSize) + 1;
+        int toMail = fromMail + size - 1;
+        int totalMails = MailBoxManager.INSTANCE.getTotalMails();
+        String emailCount = fromMail + "-" + toMail + " di " + totalMails;
+
         Platform.runLater(() -> {
             emptyList.setManaged(size == 0);
             emptyList.setVisible(size == 0);
-            emailList.setManaged(size > 0);
-            emailList.setVisible(size > 0);
+            emailContainer.setManaged(size > 0);
+            emailContainer.setVisible(size > 0);
             pageNumberContainer.setManaged(size > 0);
             pageNumberContainer.setVisible(size > 0);
             loadingList.setVisible(false);
             loadingList.setManaged(false);
+            emailCountText.setText(emailCount);
         });
     }
 
@@ -132,8 +140,8 @@ public class MainView extends Component {
         Platform.runLater(() -> {
             emptyList.setManaged(false);
             emptyList.setVisible(false);
-            emailList.setManaged(false);
-            emailList.setVisible(false);
+            emailContainer.setManaged(false);
+            emailContainer.setVisible(false);
             pageNumberContainer.setManaged(false);
             pageNumberContainer.setVisible(false);
             loadingList.setVisible(true);

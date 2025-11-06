@@ -9,9 +9,12 @@
 <fx:root type="javafx.scene.layout.StackPane" xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml" maxHeight="Infinity" HBox.hgrow="ALWAYS"
          style="-fx-background-color:#f5f5f5" stylesheets="@main_view.css">
-    <VBox spacing="30" styleClass="main-container">
+    <VBox spacing="45" styleClass="main-container">
         <Label fx:id="title" styleClass="page-title"/>
-        <ListView fx:id="emailList" VBox.vgrow="ALWAYS" maxWidth="Infinity"/>
+        <VBox fx:id="emailContainer" spacing="5" VBox.vgrow="ALWAYS" maxWidth="Infinity">
+            <Label fx:id="emailCountText" styleClass="mail-count" maxWidth="Infinity"/>
+            <ListView fx:id="emailList" VBox.vgrow="ALWAYS" maxWidth="Infinity"/>
+        </VBox>
         <VBox VBox.vgrow="ALWAYS" maxWidth="Infinity" alignment="CENTER" fx:id="emptyList">
             <Label text="Nessuna mail" styleClass="empty-label"/>
         </VBox>
