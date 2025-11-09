@@ -7,19 +7,23 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.text.Text?>
-<VBox alignment="CENTER" xmlns:fx="http://javafx.com/fxml" spacing="24"
+<ScrollPane fitToWidth="true" fitToHeight="true" xmlns:fx="http://javafx.com/fxml"  fx:controller="com.server.controllers.UIController">
+
+<content>
+
+<VBox alignment="CENTER" spacing="24"
       stylesheets="@home.css"
       style="padding:20;-fx-background-color:#1f1f1f;"
-      fx:controller="com.server.controllers.UIController">
+      >
 
     <Label text="Server Console" style="-fx-font-size: 26;-fx-font-weight: 800; -fx-text-fill: white"/>
     <HBox spacing="8" alignment="CENTER">
-        <ScrollPane fx:id="scrollPane" minWidth="800" maxWidth="800" minHeight="800" maxHeight="800"
+        <ScrollPane fx:id="scrollPane" minWidth="800" maxWidth="800" minHeight="700" maxHeight="700"
                     style="-fx-padding: 10;-fx-background-color:#121212;-fx-background-radius: 8;">
             <TextFlow fx:id="console" style="-fx-font-size: 16"/>
         </ScrollPane>
         <VBox spacing="16" alignment="TOP_CENTER">
-            <ScrollPane fx:id="mailScrollPane" minWidth="200" maxWidth="200" minHeight="680" maxHeight="680"
+            <ScrollPane fx:id="mailScrollPane" minWidth="200" maxWidth="200" minHeight="590" maxHeight="590"
                         style="-fx-padding: 10;-fx-background-color:#121212;-fx-background-radius: 8">
                 <VBox fx:id="mailListBox" spacing="4">
                     <Label style="-fx-text-fill: rgba(255,255,255,0.5)" text="Nessuna mail presente"/>
@@ -37,3 +41,6 @@
     </HBox>
 
 </VBox>
+
+</content>
+</ScrollPane>

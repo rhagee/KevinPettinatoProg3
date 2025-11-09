@@ -29,7 +29,8 @@ public class ProgApplication extends Application {
         Scene scene = new Scene(fxmlLoader.load(), 1200, 900);
         stage.setTitle("Server Mail");
         stage.setScene(scene);
-        stage.setResizable(false);
+        stage.setMaximized(true);
+        //stage.setResizable(false);
         stage.show();
 
         DatabaseHandler.INSTANCE.Initialize();
