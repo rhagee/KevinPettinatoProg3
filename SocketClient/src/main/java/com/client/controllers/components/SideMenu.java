@@ -64,7 +64,7 @@ public class SideMenu extends Component {
 
     @FXML
     private void onSendClicked(ActionEvent event) {
-
+    MailBoxManager.INSTANCE.openNewMailModal();
     }
 
     private void selectButtonInternal(Button clickedButton, boolean forceRefresh) {
