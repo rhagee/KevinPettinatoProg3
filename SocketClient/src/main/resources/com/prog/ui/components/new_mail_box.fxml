@@ -15,7 +15,7 @@
          alignment="BOTTOM_CENTER"
          style="-fx-background-color:#f5f5f5; -fx-background-radius: 8 8 0 0; -fx-padding:10"
          stylesheets="@new_mail_box.css"
-        >
+>
     <effect>
         <DropShadow radius="8" color="rgba(0,0,0,0.2)"/>
     </effect>
@@ -23,18 +23,18 @@
 
     <VBox spacing="20">
         <Label text="Nuova mail" styleClass="title"/>
-    <VBox spacing="10">
+        <VBox spacing="10" alignment="CENTER">
             <TextField fx:id="receivers" styleClass="input" promptText="Destinatari"/>
             <TextField fx:id="subject" styleClass="input" promptText="Oggetto"/>
             <TextArea fx:id="message" styleClass="area-input" promptText="Messaggio"/>
-        <Button onAction="#onSend" text="Invia" styleClass="send-button"/>
-    </VBox>
+            <Button onAction="#onSend" text="Invia" styleClass="send-button"/>
+        </VBox>
     </VBox>
 
     <StackPane StackPane.alignment="TOP_RIGHT" alignment="TOP_RIGHT" style="-fx-padding:2" maxWidth="20" maxHeight="20">
         <Button fx:id="closeBtn" onAction="#onClose" styleClass="close-btn">
             <graphic>
-                <FontIcon iconLiteral="mdi2r-refresh" iconColor="#0c0c0c" iconSize="18"/>
+                <FontIcon iconLiteral="mdi2c-close" iconColor="#0c0c0c" iconSize="18"/>
             </graphic>
         </Button>
     </StackPane>

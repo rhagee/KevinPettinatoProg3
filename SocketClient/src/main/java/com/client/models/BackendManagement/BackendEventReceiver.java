@@ -58,7 +58,7 @@ public class BackendEventReceiver implements Runnable {
 
     public boolean TrySendToRequest(Response<?> response) {
         String id = response.getRequestID();
-        if (pendingRequests.containsKey(id)) {
+        if (id != null && pendingRequests.containsKey(id)) {
             CompletableFuture<Response<?>> callback = pendingRequests.remove(id);
             callback.complete(response);
             return true;
@@ -76,7 +76,6 @@ public class BackendEventReceiver implements Runnable {
     }
 
     private void HandleEvent(Response<?> response) {
-
         if (response.getCode() != ResponseCodes.OK && response.getCode() != ResponseCodes.UPDATE) {
             AlertManager.get().add("Errore", response.getErrorMessage(), AlertType.ERROR);
             return;

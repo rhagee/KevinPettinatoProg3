@@ -148,6 +148,12 @@ public enum MailBoxManager {
 
     }
 
+
+    public void requestMailSendInternal(ArrayList<String> receivers, String subject, String message) {
+        SmallMail mail = new SmallMail(this.mail.getValue(), receivers, subject, message);
+        RequestSendMailInternal(mail);
+    }
+
     public void showSent() {
         this.status.setValue(PageStatus.SENT);
         this.pageNumber.setValue(0);
@@ -219,7 +225,7 @@ public enum MailBoxManager {
             return;
         }
 
-        RequestUnreadMailinternal(toUnread);
+        RequestUnreadMailInternal(toUnread);
         toUnread.setRead(false);
         this.toRead.setValue(toRead.getValue() + 1);
     }
@@ -233,19 +239,24 @@ public enum MailBoxManager {
             return;
         }
 
-        if (!response.CheckPayloadType(Mail.class)) {
-            return;
-        }
-
-        //We have 1 more mail toRead
-        this.toRead.setValue(toRead.getValue() + 1);
-
-        //If we are in the Received view AND we are on the first page we UPDATE the current viewed lsit
-        if (status.getValue() == PageStatus.RECEIVED && pageNumber.getValue() == 0) {
+        try {
             Mail receivedMail = (Mail) response.getPayload();
 
-            this.mailList.addFirst(receivedMail);
-            this.mailList.removeLast();
+            //We have 1 more mail toRead
+            this.toRead.setValue(toRead.getValue() + 1);
+            this.received.setValue(received.getValue() + 1);
+
+            //If we are in the Received view AND we are on the first page we UPDATE the current viewed lsit
+            if (status.getValue() == PageStatus.RECEIVED && pageNumber.getValue() == 0) {
+                this.mailList.addFirst(receivedMail);
+                FixListSize();
+                mailListSize.setValue(mailList.size());
+            }
+        } catch (Exception e) {
+            //This should catch also the bad cast exception
+            Platform.runLater(() -> {
+                AlertManager.get().add("Errore", "Mail ricevuta ma impossibile visualizzarla, perfavore ricarica la pagina.", AlertType.ERROR);
+            });
         }
     }
     //#endregion
@@ -274,6 +285,12 @@ public enum MailBoxManager {
         isLoadingMetadata.setValue(false);
         isLoadingPage.setValue(false);
         this.isInitialized = false;
+    }
+
+    private void FixListSize() {
+        while (this.mailList.size() > pageSize) {
+            this.mailList.removeLast();
+        }
     }
     //#endregion
 
@@ -312,9 +329,15 @@ public enum MailBoxManager {
         BackendManager.INSTANCE.trySubmitRequest(RequestCodes.READ, mail, null);
     }
 
-    private void RequestUnreadMailinternal(Mail mail) {
+    private void RequestUnreadMailInternal(Mail mail) {
         //Just fire the event so Backend gets notified
         BackendManager.INSTANCE.trySubmitRequest(RequestCodes.UNREAD, mail, null);
+    }
+
+    private void RequestSendMailInternal(SmallMail mail) {
+        CompletableFuture<Response<?>> onCompleteFuture = new CompletableFuture<>();
+        BackendManager.INSTANCE.trySubmitRequest(RequestCodes.SEND, mail, onCompleteFuture);
+        onCompleteFuture.thenAccept(onMailSent);
     }
     //#endregion
 
@@ -400,6 +423,43 @@ public enum MailBoxManager {
             List<Mail> responseList = (List<Mail>) response.getPayload();
             mailListSize.setValue(responseList.size());
             mailList.setAll(responseList);
+        } catch (Exception e) {
+            //This should catch also the bad cast exception
+            Platform.runLater(() -> {
+                AlertManager.get().add("Errore", "Impossibile aggiornare la lista delle e-mail", AlertType.ERROR);
+            });
+        } finally {
+            isLoadingPage.setValue(false);
+        }
+    };
+
+    private final Consumer<Response<?>> onMailSent = response -> {
+
+        if (response.getCode() == ResponseCodes.DISCONNECTED) {
+            isLoadingPage.setValue(false);
+            return;
+        }
+
+        if (response.getCode() != ResponseCodes.OK) {
+            Platform.runLater(() -> {
+                AlertManager.get().add("Errore", response.getErrorMessage(), AlertType.ERROR);
+            });
+            isLoadingPage.setValue(false);
+            return;
+        }
+
+        try {
+            Mail completeMail = (Mail) response.getPayload();
+
+            //Add first if we are in SENT and we are at page 0
+            if (status.getValue() == PageStatus.SENT && pageNumber.getValue() == 0) {
+                mailList.addFirst(completeMail);
+                FixListSize();
+                mailListSize.setValue(mailList.size());
+            }
+
+            AlertManager.get().add("Invio riuscito", "La mail è stata consegnata con successo!", AlertType.SUCCESS);
+            newMailOpen.setValue(false);
         } catch (Exception e) {
             //This should catch also the bad cast exception
             Platform.runLater(() -> {

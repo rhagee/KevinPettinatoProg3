@@ -106,6 +106,7 @@ public class MainView extends Component {
         int pages = MailBoxManager.INSTANCE.getTotalPages();
         int currPage = (int) newPageNumber + 1;
         String pageNumberText = currPage + "/" + pages;
+        UpdateCount(MailBoxManager.INSTANCE.mailListSizeProperty().getValue());
 
         Platform.runLater(() -> {
             prevPage.setDisable(!MailBoxManager.INSTANCE.hasPreviousPage());
@@ -117,11 +118,7 @@ public class MainView extends Component {
     private void OnMailListUpdated(Number mailListSize) {
 
         int size = (int) mailListSize;
-        int currPage = MailBoxManager.INSTANCE.pageNumberProperty().getValue();
-        int fromMail = (currPage * MailBoxManager.pageSize) + 1;
-        int toMail = fromMail + size - 1;
-        int totalMails = MailBoxManager.INSTANCE.getTotalMails();
-        String emailCount = fromMail + "-" + toMail + " di " + totalMails;
+        UpdateCount(size);
 
         Platform.runLater(() -> {
             emptyList.setManaged(size == 0);
@@ -132,6 +129,16 @@ public class MainView extends Component {
             pageNumberContainer.setVisible(size > 0);
             loadingList.setVisible(false);
             loadingList.setManaged(false);
+        });
+    }
+
+    private void UpdateCount(int size) {
+        int currPage = MailBoxManager.INSTANCE.pageNumberProperty().getValue();
+        int fromMail = (currPage * MailBoxManager.pageSize) + 1;
+        int toMail = fromMail + size - 1;
+        int totalMails = MailBoxManager.INSTANCE.getTotalMails();
+        String emailCount = fromMail + "-" + toMail + " di " + totalMails;
+        Platform.runLater(() -> {
             emailCountText.setText(emailCount);
         });
     }
