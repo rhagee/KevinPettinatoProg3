@@ -27,7 +27,7 @@
             <TextField fx:id="receivers" styleClass="input" promptText="Destinatari"/>
             <TextField fx:id="subject" styleClass="input" promptText="Oggetto"/>
             <TextArea fx:id="message" styleClass="area-input" promptText="Messaggio"/>
-            <Button onAction="#onSend" text="Invia" styleClass="send-button"/>
+            <Button fx:id="sendButton" onAction="#onSend" text="Invia" styleClass="send-button"/>
         </VBox>
     </VBox>
 

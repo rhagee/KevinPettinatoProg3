@@ -49,6 +49,7 @@ public enum MailBoxManager {
 
     private BooleanProperty isLoadingMetadata = new SimpleBooleanProperty(false);
     private BooleanProperty isLoadingPage = new SimpleBooleanProperty(false);
+    private BooleanProperty isSendingMail = new SimpleBooleanProperty(false);
 
     private ObjectProperty<Mail> selectedMail = new SimpleObjectProperty<>(null);
     private BooleanProperty newMailOpen = new SimpleBooleanProperty(false);
@@ -97,6 +98,10 @@ public enum MailBoxManager {
 
     public BooleanProperty isLoadingPageProperty() {
         return isLoadingPage;
+    }
+
+    public BooleanProperty isSendingMailProperty() {
+        return isSendingMail;
     }
 
     public ObjectProperty<Mail> getSelectedMailProperty() {
@@ -335,6 +340,7 @@ public enum MailBoxManager {
     }
 
     private void RequestSendMailInternal(SmallMail mail) {
+        isSendingMail.setValue(true);
         CompletableFuture<Response<?>> onCompleteFuture = new CompletableFuture<>();
         BackendManager.INSTANCE.trySubmitRequest(RequestCodes.SEND, mail, onCompleteFuture);
         onCompleteFuture.thenAccept(onMailSent);
@@ -436,7 +442,7 @@ public enum MailBoxManager {
     private final Consumer<Response<?>> onMailSent = response -> {
 
         if (response.getCode() == ResponseCodes.DISCONNECTED) {
-            isLoadingPage.setValue(false);
+            isSendingMail.setValue(false);
             return;
         }
 
@@ -444,7 +450,7 @@ public enum MailBoxManager {
             Platform.runLater(() -> {
                 AlertManager.get().add("Errore", response.getErrorMessage(), AlertType.ERROR);
             });
-            isLoadingPage.setValue(false);
+            isSendingMail.setValue(false);
             return;
         }
 
@@ -458,7 +464,7 @@ public enum MailBoxManager {
                 mailListSize.setValue(mailList.size());
             }
 
-            AlertManager.get().add("Invio riuscito", "La mail è stata consegnata con successo!", AlertType.SUCCESS);
+            AlertManager.get().add("Invio riuscito", "La mail è stata inviata con successo!", AlertType.SUCCESS);
             newMailOpen.setValue(false);
         } catch (Exception e) {
             //This should catch also the bad cast exception
@@ -466,7 +472,7 @@ public enum MailBoxManager {
                 AlertManager.get().add("Errore", "Impossibile aggiornare la lista delle e-mail", AlertType.ERROR);
             });
         } finally {
-            isLoadingPage.setValue(false);
+            isSendingMail.setValue(false);
         }
     };
     //#endregion

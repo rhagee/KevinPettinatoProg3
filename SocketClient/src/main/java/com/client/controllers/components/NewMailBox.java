@@ -3,7 +3,9 @@ package com.client.controllers.components;
 import com.client.models.AlertManagement.AlertManager;
 import com.client.models.AlertManagement.AlertType;
 import com.client.models.EmailManagement.MailBoxManager;
+import javafx.beans.property.BooleanProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
@@ -28,6 +30,9 @@ public class NewMailBox extends Component {
     @FXML
     private TextArea message;
 
+    @FXML
+    private Button sendButton;
+
 
     public NewMailBox() {
         initializeComponent(RESOURCE_NAME);
@@ -50,6 +55,16 @@ public class NewMailBox extends Component {
                 Hide();
             }
         });
+
+        BooleanProperty isSendingProp = MailBoxManager.INSTANCE.isSendingMailProperty();
+        EnableButton(isSendingProp.getValue());
+        isSendingProp.addListener((observable, oldValue, newValue) -> {
+            EnableButton(newValue);
+        });
+    }
+
+    private void EnableButton(boolean isSending) {
+        sendButton.setDisable(isSending);
     }
 
     private void Show() {
