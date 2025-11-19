@@ -60,6 +60,10 @@ public class MainView extends Component {
             ChangePageSettings(MailBoxManager.INSTANCE.pageNumberProperty().getValue());
         });
 
+        MailBoxManager.INSTANCE.incrementProperty().addListener((observable, oldValue, newValue) -> {
+            ChangePageSettings(MailBoxManager.INSTANCE.pageNumberProperty().getValue());
+        });
+
         MailBoxManager.INSTANCE.sentProperty().addListener((observable, oldValue, newValue) -> {
             ChangePageSettings(MailBoxManager.INSTANCE.pageNumberProperty().getValue());
         });
@@ -134,7 +138,8 @@ public class MainView extends Component {
 
     private void UpdateCount(int size) {
         int currPage = MailBoxManager.INSTANCE.pageNumberProperty().getValue();
-        int fromMail = (currPage * MailBoxManager.pageSize) + 1;
+        int increment = MailBoxManager.INSTANCE.incrementProperty().getValue();
+        int fromMail = (currPage * MailBoxManager.pageSize) + 1 + increment;
         int toMail = fromMail + size - 1;
         int totalMails = MailBoxManager.INSTANCE.getTotalMails();
         String emailCount = fromMail + "-" + toMail + " di " + totalMails;

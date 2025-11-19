@@ -41,6 +41,7 @@ public enum MailBoxManager {
     private IntegerProperty toRead = new SimpleIntegerProperty(0);
     private IntegerProperty received = new SimpleIntegerProperty(0);
     private IntegerProperty sent = new SimpleIntegerProperty(0);
+    private IntegerProperty increment = new SimpleIntegerProperty(0);
 
     private ListProperty<Mail> mailList = new SimpleListProperty<>(FXCollections.observableArrayList());
     private IntegerProperty mailListSize = new SimpleIntegerProperty(0);
@@ -86,6 +87,10 @@ public enum MailBoxManager {
 
     public IntegerProperty toReadProperty() {
         return toRead;
+    }
+
+    public IntegerProperty incrementProperty() {
+        return increment;
     }
 
     public IntegerProperty mailListSizeProperty() {
@@ -256,6 +261,8 @@ public enum MailBoxManager {
                 this.mailList.addFirst(receivedMail);
                 FixListSize();
                 mailListSize.setValue(mailList.size());
+            } else {
+                increment.setValue(increment.getValue() + 1);
             }
         } catch (Exception e) {
             //This should catch also the bad cast exception
@@ -316,6 +323,7 @@ public enum MailBoxManager {
     }
 
     private void RequestMailPageInternal() {
+        increment.setValue(0);
         isLoadingPage.setValue(true);
         MailPageRequest request = new MailPageRequest();
 
@@ -463,6 +471,8 @@ public enum MailBoxManager {
                 mailList.addFirst(completeMail);
                 FixListSize();
                 mailListSize.setValue(mailList.size());
+            } else {
+                increment.setValue(increment.getValue() + 1);
             }
 
             AlertManager.get().add("Invio riuscito", "La mail è stata inviata con successo!", AlertType.SUCCESS);
