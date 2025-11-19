@@ -81,7 +81,7 @@ public enum MailBoxManager {
     }
 
     public IntegerProperty sentProperty() {
-        return received;
+        return sent;
     }
 
     public IntegerProperty toReadProperty() {
@@ -457,6 +457,7 @@ public enum MailBoxManager {
         try {
             Mail completeMail = (Mail) response.getPayload();
 
+            sent.setValue(sent.getValue() + 1);
             //Add first if we are in SENT and we are at page 0
             if (status.getValue() == PageStatus.SENT && pageNumber.getValue() == 0) {
                 mailList.addFirst(completeMail);
