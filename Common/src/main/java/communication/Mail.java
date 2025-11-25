@@ -1,5 +1,9 @@
 package communication;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -10,6 +14,8 @@ public class Mail extends SmallMail implements Serializable {
     private UUID id;
     private LocalDateTime dateTime;
     private Boolean read = false;
+    @JsonIgnore
+    private transient BooleanProperty readProp = new SimpleBooleanProperty(false);
 
     public Mail() {
 
@@ -24,6 +30,7 @@ public class Mail extends SmallMail implements Serializable {
         this.id = UUID.randomUUID();
         this.dateTime = toCopy.dateTime;
         this.read = toCopy.read;
+        this.readProp.setValue(toCopy.read);
     }
 
     public Mail(UUID id, String sender, ArrayList<String> receiverList, String subject, LocalDateTime dateTime, String message, boolean read) {
@@ -31,6 +38,7 @@ public class Mail extends SmallMail implements Serializable {
         this.id = id;
         this.dateTime = dateTime;
         this.read = read;
+        this.readProp.setValue(read);
     }
 
     public Mail(String sender) {
@@ -42,6 +50,7 @@ public class Mail extends SmallMail implements Serializable {
         super(toCopy);
         this.id = UUID.randomUUID();
         this.read = false;
+        this.readProp.setValue(false);
         this.dateTime = LocalDateTime.now();
     }
 
@@ -50,6 +59,7 @@ public class Mail extends SmallMail implements Serializable {
         super.CreateEmpty(sender);
         id = UUID.randomUUID();
         read = false;
+        this.readProp.setValue(false);
     }
 
     public void setNow() {
@@ -66,10 +76,12 @@ public class Mail extends SmallMail implements Serializable {
 
     public void onUnread() {
         read = false;
+        readProp.setValue(false);
     }
 
     public void onRead() {
         read = true;
+        readProp.setValue(true);
     }
 
     public Boolean getRead() {
@@ -78,6 +90,7 @@ public class Mail extends SmallMail implements Serializable {
 
     public void setRead(Boolean read) {
         this.read = read;
+        this.readProp.setValue(read);
     }
 
     public UUID getId() {
@@ -90,6 +103,16 @@ public class Mail extends SmallMail implements Serializable {
 
     public UUID getChunkID() {
         return chunkID;
+    }
+
+    @JsonIgnore
+    public BooleanProperty getReadProp() {
+        return readProp;
+    }
+
+    public void syncReadProp() {
+        readProp = new SimpleBooleanProperty();
+        readProp.setValue(read);
     }
 
 }

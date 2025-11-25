@@ -3,6 +3,7 @@ package com.client.controllers.email;
 import com.client.models.EmailManagement.MailBoxManager;
 import com.client.models.EmailManagement.PageStatus;
 import communication.Mail;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -34,7 +35,15 @@ public class EmailItemController {
         setEllipsesString(subject, newMail.getSubject(), 25);
         setEllipsesString(message, newMail.getMessage(), 50);
         setDate(newMail);
+
+        if (newMail.getReadProp() == null) {
+            newMail.syncReadProp();
+        }
+
         SetReadUnreadStyle(newMail.getRead());
+        newMail.getReadProp().addListener((observable, oldValue, newValue) -> {
+            SetReadUnreadStyle(newValue);
+        });
 
         mail = newMail;
     }
@@ -87,14 +96,17 @@ public class EmailItemController {
         target.setText(finalText);
     }
 
-    private void SetReadUnreadStyle(boolean toRead) {
-        if (MailBoxManager.INSTANCE.statusProperty().getValue() == PageStatus.SENT || !toRead) {
-            root.getStyleClass().remove(TO_READ_STYLE);
-            root.getStyleClass().add(READ_STYLE);
-        } else {
-            root.getStyleClass().remove(READ_STYLE);
-            root.getStyleClass().add(TO_READ_STYLE);
-        }
+    private void SetReadUnreadStyle(boolean read) {
+        boolean isSentPage = MailBoxManager.INSTANCE.statusProperty().getValue() == PageStatus.SENT;
+        Platform.runLater(() -> {
+            if (isSentPage || read) {
+                root.getStyleClass().remove(TO_READ_STYLE);
+                root.getStyleClass().add(READ_STYLE);
+            } else {
+                root.getStyleClass().remove(READ_STYLE);
+                root.getStyleClass().add(TO_READ_STYLE);
+            }
+        });
     }
 
     @FXML

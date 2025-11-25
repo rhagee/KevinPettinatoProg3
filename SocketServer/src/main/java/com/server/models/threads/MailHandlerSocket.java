@@ -77,8 +77,10 @@ public class MailHandlerSocket extends Thread {
                 break;
             case RequestCodes.READ:
                 OnReadUnread(request, true);
+                break;
             case RequestCodes.UNREAD:
                 OnReadUnread(request, false);
+                break;
             default:
                 OnNotFound(request);
                 break;

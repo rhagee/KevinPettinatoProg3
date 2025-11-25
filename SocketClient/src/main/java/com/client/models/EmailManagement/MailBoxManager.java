@@ -236,7 +236,9 @@ public enum MailBoxManager {
 
     public void openMailDrawer(Mail toOpen) {
         //If we open a mail that is still unreaded, we proceed notify backend and update local data
-        if (toOpen.getRead()) {
+
+        //If it's not read AND we are NOT the sender
+        if (!toOpen.getRead() && !toOpen.getSender().equals(this.mail.getValue())) {
             RequestReadMailInternal(toOpen);
             toOpen.setRead(true);
             this.toRead.setValue(this.toRead.getValue() - 1);
