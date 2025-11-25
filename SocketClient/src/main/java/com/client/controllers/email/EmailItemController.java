@@ -55,8 +55,8 @@ public class EmailItemController {
                 String year = date.getYear() + "";
                 String month = date.getMonthValue() + "";
                 String day = date.getDayOfMonth() + "";
-                String hour = date.getHour() + "";
-                String minute = date.getMinute() + "";
+                String hour = String.format("%02d", date.getHour());
+                String minute = String.format("%02d", date.getMinute());
                 String formattedDate = day + "/" + month + "/" + year + " (" + hour + ":" + minute + ")";
                 dateTime.setText(formattedDate);
             } else {
