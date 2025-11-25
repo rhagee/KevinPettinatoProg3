@@ -56,6 +56,14 @@ public class Mail extends SmallMail implements Serializable {
         dateTime = LocalDateTime.now();
     }
 
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
+    }
+
+    public LocalDateTime getDateTime() {
+        return this.dateTime;
+    }
+
     public void onUnread() {
         read = false;
     }

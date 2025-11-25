@@ -1,5 +1,6 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Region?>
 <HBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.client.controllers.email.EmailItemController" fx:id="root"
       stylesheets="@email_item.css" styleClass="row-container"
@@ -9,6 +10,8 @@
     <HBox spacing="10" HBox.hgrow="ALWAYS">
         <Label fx:id="subject" styleClass="subject-label"/>
         <Label fx:id="message" styleClass="message-label"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="dateTime" styleClass="date-label"/>
     </HBox>
 
 </HBox>

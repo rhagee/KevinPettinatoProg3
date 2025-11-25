@@ -8,6 +8,8 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.impl.JWTParser;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.server.models.threads.SocketHandler;
 import communication.*;
 import javafx.beans.property.ObjectProperty;
@@ -39,7 +41,15 @@ public enum DatabaseHandler {
     //endregion
 
     //region Statics
-    public static final ObjectMapper MAPPER = new ObjectMapper();
+    public static final ObjectMapper MAPPER;
+
+    //This is needed in order to Serialize/Deserialize LocalDateTime into Timestamps
+    static {
+        MAPPER = new ObjectMapper();
+        MAPPER.registerModule(new JavaTimeModule());
+        MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    }
+
     private static final JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(secret)).withIssuer(issuer).build();
 
     public static File CACHED_DIR;

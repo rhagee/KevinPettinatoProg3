@@ -7,12 +7,14 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 
+import java.time.LocalDateTime;
+
 public class EmailItemController {
 
     @FXML
     private HBox root;
     @FXML
-    private Label userMail, subject, message;
+    private Label userMail, subject, message, dateTime;
 
     private Mail mail;
 
@@ -25,14 +27,37 @@ public class EmailItemController {
             subject.textProperty().unbind();
             root.styleProperty().unbind();
             message.textProperty().unbind();
+            dateTime.textProperty().unbind();
         }
 
         setUserMail(newMail);
         setEllipsesString(subject, newMail.getSubject(), 25);
         setEllipsesString(message, newMail.getMessage(), 50);
+        setDate(newMail);
         SetReadUnreadStyle(newMail.getRead());
 
         mail = newMail;
+    }
+
+    private void setDate(Mail newMail) {
+        try {
+            LocalDateTime date = newMail.getDateTime();
+            if (date != null) {
+                String year = date.getYear() + "";
+                String month = date.getMonthValue() + "";
+                String day = date.getDayOfMonth() + "";
+                String hour = date.getHour() + "";
+                String minute = date.getMinute() + "";
+                String formattedDate = day + "/" + month + "/" + year + " (" + hour + ":" + minute + ")";
+                dateTime.setText(formattedDate);
+            } else {
+                dateTime.setText("Data non disponibile");
+            }
+        } catch (Exception e) {
+            dateTime.setText("Data non disponibile");
+            e.printStackTrace();
+        }
+
     }
 
 
