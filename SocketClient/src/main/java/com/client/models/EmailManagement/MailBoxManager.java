@@ -46,6 +46,7 @@ public enum MailBoxManager {
     private ListProperty<Mail> mailList = new SimpleListProperty<>(FXCollections.observableArrayList());
     private IntegerProperty mailListSize = new SimpleIntegerProperty(0);
     private ObjectProperty<PageStatus> status = new SimpleObjectProperty<>(PageStatus.RECEIVED);
+    private ObjectProperty<NewMode> mode = new SimpleObjectProperty<>(NewMode.DEFAULT);
     private IntegerProperty pageNumber = new SimpleIntegerProperty(0);
 
     private BooleanProperty isLoadingMetadata = new SimpleBooleanProperty(false);
@@ -53,6 +54,7 @@ public enum MailBoxManager {
     private BooleanProperty isSendingMail = new SimpleBooleanProperty(false);
 
     private ObjectProperty<Mail> selectedMail = new SimpleObjectProperty<>(null);
+    private ObjectProperty<Mail> consumableMail = new SimpleObjectProperty<>(null);
     private BooleanProperty newMailOpen = new SimpleBooleanProperty(false);
     //#endregion
 
@@ -111,6 +113,14 @@ public enum MailBoxManager {
 
     public ObjectProperty<Mail> getSelectedMailProperty() {
         return selectedMail;
+    }
+
+    public ObjectProperty<NewMode> modeProperty() {
+        return mode;
+    }
+
+    public ObjectProperty<Mail> getConsumableMail() {
+        return consumableMail;
     }
 
     public BooleanProperty getNewMailOpenProperty() {
@@ -212,6 +222,11 @@ public enum MailBoxManager {
     }
 
     public void openNewMailModal() {
+        if (newMailOpen.getValue()) {
+            return;
+        }
+
+        mode.setValue(NewMode.DEFAULT);
         newMailOpen.setValue(true);
     }
 
@@ -242,6 +257,29 @@ public enum MailBoxManager {
 
     public void closeMailDrawer() {
         this.selectedMail.setValue(null);
+    }
+
+    public void onReply() {
+        newMailOpen.setValue(true);
+        setConsumableMail();
+        mode.setValue(NewMode.REPLY);
+    }
+
+    public void onReplyAll() {
+        newMailOpen.setValue(true);
+        setConsumableMail();
+        mode.setValue(NewMode.REPLY_ALL);
+    }
+
+    public void onForward() {
+        newMailOpen.setValue(true);
+        setConsumableMail();
+        mode.setValue(NewMode.FORWARD);
+    }
+
+    public void ConsumeMail() {
+        consumableMail.setValue(null);
+        mode.setValue(NewMode.DEFAULT);
     }
 
     public void mailReceived(Response<?> response) {
@@ -296,7 +334,14 @@ public enum MailBoxManager {
         pageNumber.setValue(0);
         isLoadingMetadata.setValue(false);
         isLoadingPage.setValue(false);
+        selectedMail.setValue(null);
+        consumableMail.setValue(null);
         this.isInitialized = false;
+    }
+
+    private void setConsumableMail() {
+        consumableMail.setValue(selectedMail.getValue());
+        selectedMail.setValue(null);
     }
 
     private void FixListSize() {

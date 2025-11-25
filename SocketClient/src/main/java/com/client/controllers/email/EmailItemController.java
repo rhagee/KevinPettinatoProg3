@@ -51,10 +51,10 @@ public class EmailItemController {
                 String formattedDate = day + "/" + month + "/" + year + " (" + hour + ":" + minute + ")";
                 dateTime.setText(formattedDate);
             } else {
-                dateTime.setText("Data non disponibile");
+                dateTime.setText("N/D");
             }
         } catch (Exception e) {
-            dateTime.setText("Data non disponibile");
+            dateTime.setText("N/D");
             e.printStackTrace();
         }
 
@@ -95,5 +95,10 @@ public class EmailItemController {
             root.getStyleClass().remove(READ_STYLE);
             root.getStyleClass().add(TO_READ_STYLE);
         }
+    }
+
+    @FXML
+    private void onClick() {
+        MailBoxManager.INSTANCE.openMailDrawer(this.mail);
     }
 }

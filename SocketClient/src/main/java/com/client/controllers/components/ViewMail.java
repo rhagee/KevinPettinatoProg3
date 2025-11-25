@@ -3,9 +3,12 @@ package com.client.controllers.components;
 import com.client.models.AlertManagement.AlertManager;
 import com.client.models.AlertManagement.AlertType;
 import com.client.models.EmailManagement.MailBoxManager;
+import com.client.models.EmailManagement.PageStatus;
+import communication.Mail;
 import javafx.beans.property.BooleanProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
@@ -25,14 +28,13 @@ public class ViewMail extends Component {
 
 
     @FXML
-    private TextField receivers, subject;
+    private Label sender, receivers, subject;
+
+    @FXML
+    private Button reply, replyAll, forward;
 
     @FXML
     private TextArea message;
-
-    @FXML
-    private Button sendButton;
-
 
     public ViewMail() {
         initializeComponent(RESOURCE_NAME);
@@ -44,106 +46,85 @@ public class ViewMail extends Component {
     @FXML
     private void initialize() {
         Hide();
-        //initializeBindings();
+        initializeBindings();
     }
 
     private void initializeBindings() {
-        MailBoxManager.INSTANCE.getNewMailOpenProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
+        MailBoxManager.INSTANCE.getSelectedMailProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
                 Show();
+                PopulateFields(newValue);
             } else {
                 Hide();
             }
         });
-
-        BooleanProperty isSendingProp = MailBoxManager.INSTANCE.isSendingMailProperty();
-        EnableButton(isSendingProp.getValue());
-        isSendingProp.addListener((observable, oldValue, newValue) -> {
-            EnableButton(newValue);
-        });
     }
 
-    private void EnableButton(boolean isSending) {
-        sendButton.setDisable(isSending);
-    }
 
     private void Show() {
-
-        if (!clearOnNextOpen) {
-            clearOnNextOpen = true;
-        } else {
-            Clear();
-        }
-
         this.setVisible(true);
         this.setManaged(true);
     }
 
+    private void PopulateFields(Mail newMail) {
+
+        boolean isSent = MailBoxManager.INSTANCE.statusProperty().getValue() == PageStatus.SENT;
+
+
+        reply.setVisible(!isSent);
+        reply.setManaged(!isSent);
+        replyAll.setVisible(!isSent);
+        replyAll.setManaged(!isSent);
+
+        sender.setText(newMail.getSender());
+        subject.setText(newMail.getSubject());
+        message.setText(newMail.getMessage());
+
+        String receiversString = "";
+        List<String> receiversList = newMail.getReceiverList();
+        if (receiversList.size() > 1) {
+            for (String receiver : receiversList) {
+                receiversString += receiver + ",";
+            }
+        } else if (receiversList.size() == 1) {
+            receiversString = receiversList.get(0);
+        } else {
+            receiversString = "Nessuno";
+        }
+        receivers.setText(receiversString);
+    }
+
     private void Clear() {
+        sender.setText("");
         receivers.setText("");
         subject.setText("");
         message.setText("");
     }
 
+
     private void Hide() {
+        Clear();
         this.setVisible(false);
         this.setManaged(false);
     }
 
     @FXML
-    private void onSend() {
-        String[] receiverList = receivers.getText().replace(" ", "").split(",");
-        String subjectText = subject.getText();
-        String messageText = message.getText();
-
-        if (subjectText.isEmpty() || messageText.isEmpty() || receiverList.length == 0) {
-            AlertManager.get().add("Errore", "Compilare tutti i campi per l'invio mail, inoltre la mail deve avere almeno 1 destinatario", AlertType.ERROR);
-            return;
-        }
-
-        boolean allMatches = true;
-        boolean itsMe = false;
-        String invalidMail = "";
-        HashSet<String> receiverSet = new HashSet<>();
-
-        for (int i = 0; i < receiverList.length && allMatches && !itsMe; i++) {
-            String receiver = receiverList[i];
-
-            if (!CheckMail(receiver)) {
-                allMatches = false;
-                invalidMail = receiver;
-                continue;
-            }
-
-            if (receiver.equals(MailBoxManager.INSTANCE.mailProperty().getValue())) {
-                itsMe = true;
-                continue;
-            }
-
-            receiverSet.add(receiver);
-        }
-
-        if (!allMatches) {
-            AlertManager.get().add("Errore", "Mail non valida : " + invalidMail, AlertType.ERROR);
-            return;
-        }
-
-        if (itsMe) {
-            AlertManager.get().add("Errore", "Impossibile inviare una mail a se stessi.", AlertType.ERROR);
-            return;
-        }
-
-        MailBoxManager.INSTANCE.requestMailSendInternal(new ArrayList<>(receiverSet.stream().toList()), subjectText, messageText);
-    }
-
-    private boolean CheckMail(String mail) {
-        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(mail);
-        return matcher.matches();
+    private void onClose() {
+        MailBoxManager.INSTANCE.closeMailDrawer();
     }
 
     @FXML
-    private void onClose() {
-        clearOnNextOpen = false;
-        MailBoxManager.INSTANCE.closeNewMailModal();
+    private void onReply() {
+        MailBoxManager.INSTANCE.onReply();
+    }
+
+    @FXML
+    private void onReplyAll() {
+        MailBoxManager.INSTANCE.onReplyAll();
+    }
+
+    @FXML
+    private void onForward() {
+        MailBoxManager.INSTANCE.onForward();
     }
 }

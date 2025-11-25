@@ -4,14 +4,14 @@
 <HBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.client.controllers.email.EmailItemController" fx:id="root"
       stylesheets="@email_item.css" styleClass="row-container"
-      spacing="40" maxWidth="Infinity">
+      spacing="40" maxWidth="Infinity" onMouseClicked="#onClick" pickOnBounds="true">
 
-    <Label fx:id="userMail" styleClass="mail-label"/>
-    <HBox spacing="10" HBox.hgrow="ALWAYS">
-        <Label fx:id="subject" styleClass="subject-label"/>
-        <Label fx:id="message" styleClass="message-label"/>
-        <Region HBox.hgrow="ALWAYS"/>
-        <Label fx:id="dateTime" styleClass="date-label"/>
+    <Label fx:id="userMail" styleClass="mail-label" mouseTransparent="true"/>
+    <HBox spacing="10" HBox.hgrow="ALWAYS" mouseTransparent="true">
+        <Label fx:id="subject" styleClass="subject-label" mouseTransparent="true"/>
+        <Label fx:id="message" styleClass="message-label" mouseTransparent="true"/>
+        <Region HBox.hgrow="ALWAYS" mouseTransparent="true"/>
+        <Label fx:id="dateTime" styleClass="date-label" mouseTransparent="true"/>
     </HBox>
 
 </HBox>

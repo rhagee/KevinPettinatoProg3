@@ -20,22 +20,43 @@
     -fx-background-color: #e3eefa;
 }
 
-.area-input {
-    -fx-border-width: 1;
-    -fx-border-color: #cccccc;
+.area-viewer {
+    -fx-cursor: default;
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
     -fx-border-radius: 8;
-    -fx-background-color: #ededed;
-    -fx-padding: 8;
+    -fx-background-color: transparent;
     -fx-font-size: 14;
     -fx-min-width: 450;
     -fx-max-width: 450;
+    -fx-control-inner-background: transparent;
+}
+
+.meta-title {
+    -fx-font-weight: 700;
+    -fx-font-size: 16;
+}
+
+.meta-text {
+    -fx-font-weight: 500;
+    -fx-font-size: 16;
+    -fx-text-fill: rgba(0, 0, 0, 0.6);
+}
+
+.area-viewer:disabled {
+    -fx-cursor: default;
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+    -fx-border-radius: 8;
+    -fx-background-color: transparent;
+    -fx-font-size: 14;
+    -fx-min-width: 780;
+    -fx-max-width: 780;
     -fx-control-inner-background: #ededed;
 }
 
-.area-input:focused {
-    -fx-border-color: #8cc3ff;
-    -fx-background-color: #e3eefa;
-    -fx-control-inner-background: #e3eefa;
+.area-viewer:hover {
+    -fx-cursor: default;
 }
 
 .area-input .content,
@@ -57,19 +78,19 @@
     -fx-background-color: rgba(100, 100, 100, 0.1);
 }
 
-.send-button {
+.interaction-button {
     -fx-background-color: #011f40;
     -fx-background-radius: 8;
     -fx-text-fill: #ededed;
     -fx-font-weight: 800;
     -fx-padding: 10;
-    -fx-min-width: 200;
-    -fx-max-width: 200;
+    -fx-min-width: 150;
+    -fx-max-width: 150;
     -fx-border-width: 0;
-    -fx-font-size: 14;
+    -fx-font-size: 12;
 }
 
-.send-button:hover {
+.interaction-button:hover {
     -fx-cursor: hand;
     -fx-background-color: #01162c;
 }

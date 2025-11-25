@@ -11,23 +11,49 @@
 <fx:root type="javafx.scene.layout.StackPane" xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          stylesheets="@view_mail.css"
-         style="-fx-background-color: rgba(0,0,0,0.6)"
+         style="-fx-background-color: rgba(0,0,0,0.6); -fx-padding: 10"
 >
     <StackPane StackPane.alignment="CENTER"
                alignment="CENTER" style="-fx-background-color:#f5f5f5; -fx-background-radius: 8; -fx-padding:10"
-               maxHeight="600" maxWidth="800">
+               maxHeight="550" maxWidth="800">
         <effect>
             <DropShadow radius="8" color="rgba(0,0,0,0.2)"/>
         </effect>
 
         <VBox spacing="20">
-            <Label text="Nuova mail" styleClass="title"/>
-            <VBox spacing="10" alignment="CENTER">
-                <TextField fx:id="receivers" styleClass="input" promptText="Destinatari"/>
-                <TextField fx:id="subject" styleClass="input" promptText="Oggetto"/>
-                <TextArea fx:id="message" styleClass="area-input" promptText="Messaggio"/>
-                <Button fx:id="sendButton" onAction="#onSend" text="Invia" styleClass="send-button"/>
-            </VBox>
+            <GridPane hgap="10" vgap="8">
+                <columnConstraints>
+                    <ColumnConstraints halignment="LEFT" minWidth="80"/>
+                    <ColumnConstraints halignment="LEFT"/>
+                </columnConstraints>
+
+                <Label text="Da:" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="meta-title"/>
+                <Label fx:id="sender" styleClass="meta-text"
+                       GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                <Label text="A:" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="meta-title"/>
+                <Label fx:id="receivers" wrapText="true" styleClass="meta-text"
+                       GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Oggetto:" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="meta-title"/>
+                <Label fx:id="subject" styleClass="meta-text"
+                       GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <TextArea fx:id="message"
+                      editable="false"
+                      disable="true"
+                      wrapText="true"
+                      styleClass="area-viewer"
+                      prefRowCount="15"/>
+
+            <HBox spacing="10" alignment="CENTER">
+                <Button styleClass="interaction-button" text="Rispondi" fx:id="reply" onAction="#onReply"/>
+                <Button styleClass="interaction-button" text="Rispondi a tutti" fx:id="replyAll"
+                        onAction="#onReplyAll"/>
+                <Button styleClass="interaction-button" text="Inoltra" fx:id="forward" onAction="#onForward"/>
+            </HBox>
+
         </VBox>
 
         <StackPane StackPane.alignment="TOP_RIGHT" alignment="TOP_RIGHT" style="-fx-padding:2" maxWidth="20"

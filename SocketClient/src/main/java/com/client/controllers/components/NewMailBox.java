@@ -3,6 +3,10 @@ package com.client.controllers.components;
 import com.client.models.AlertManagement.AlertManager;
 import com.client.models.AlertManagement.AlertType;
 import com.client.models.EmailManagement.MailBoxManager;
+import com.client.models.EmailManagement.NewMode;
+import com.client.models.EmailManagement.PageStatus;
+import communication.Mail;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -50,10 +54,19 @@ public class NewMailBox extends Component {
     private void initializeBindings() {
         MailBoxManager.INSTANCE.getNewMailOpenProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                Show();
+                Show(NewMode.DEFAULT);
             } else {
                 Hide();
             }
+        });
+
+        MailBoxManager.INSTANCE.modeProperty().addListener((observable, oldValue, newValue) -> {
+            //We ignore Default here
+            if (newValue == NewMode.DEFAULT) {
+                return;
+            }
+
+            Show(newValue);
         });
 
         BooleanProperty isSendingProp = MailBoxManager.INSTANCE.isSendingMailProperty();
@@ -67,16 +80,68 @@ public class NewMailBox extends Component {
         sendButton.setDisable(isSending);
     }
 
-    private void Show() {
-
+    private void Show(NewMode mode) {
         if (!clearOnNextOpen) {
             clearOnNextOpen = true;
         } else {
             Clear();
         }
-
         this.setVisible(true);
         this.setManaged(true);
+
+        if (mode == NewMode.DEFAULT) {
+            return;
+        }
+
+        Mail consumableMail = MailBoxManager.INSTANCE.getConsumableMail().getValue();
+
+        switch (mode) {
+            case NewMode.REPLY:
+                String receiver = GetReceiversString(consumableMail, false);
+                InitializeFields(receiver, "RE: " + consumableMail.getSubject(), "\n\n\n\nTesto citato:\n'" + consumableMail.getMessage() + "'");
+                break;
+            case NewMode.FORWARD:
+                InitializeFields("", consumableMail.getSubject(), consumableMail.getMessage());
+                break;
+            case NewMode.REPLY_ALL:
+                String allReceivers = GetReceiversString(consumableMail, true);
+                InitializeFields(allReceivers, "RE: " + consumableMail.getSubject(), "\n\n\n\nTesto citato:\n'" + consumableMail.getMessage() + "'");
+                break;
+            default:
+                break;
+        }
+
+        MailBoxManager.INSTANCE.ConsumeMail();
+    }
+
+    private String GetReceiversString(Mail mail, boolean all) {
+        String myMail = MailBoxManager.INSTANCE.mailProperty().getValue();
+        String receiversString = mail.getSender();
+        List<String> receiverList = mail.getReceiverList();
+
+        if (all) {
+            if (!receiverList.isEmpty()) {
+                for (String receiver : receiverList) {
+                    //Ignore myself
+                    if (receiver.equals(myMail)) {
+                        continue;
+                    }
+
+                    receiversString += "," + receiver;
+                }
+            }
+        }
+
+        return receiversString;
+    }
+
+    private void InitializeFields(String receiver, String subject, String message) {
+        Platform.runLater(() -> {
+            this.receivers.setText(receiver);
+            this.subject.setText(subject);
+            this.message.setText(message);
+        });
+
     }
 
     private void Clear() {
