@@ -86,10 +86,10 @@ public class EmailItemController {
     }
 
     private void setEllipsesString(Label target, String text, int maxChar) {
-        String finalText = text;
+        String finalText = text.replace("\n"," ");
 
-        if (text.length() > maxChar) {
-            finalText = text.substring(0, maxChar);
+        if (finalText.length() > maxChar) {
+            finalText = finalText.substring(0, maxChar);
             finalText += "...";
         }
 

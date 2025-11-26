@@ -3,6 +3,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Separator?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TextArea?>
@@ -39,10 +40,13 @@
                 <Label fx:id="subject" styleClass="meta-text"
                        GridPane.rowIndex="2" GridPane.columnIndex="1"/>
             </GridPane>
-
+            <Separator orientation="HORIZONTAL">
+                <opacity>0.4</opacity>   <!-- semi-transparent -->
+            </Separator>
             <TextArea fx:id="message"
                       editable="false"
-                      disable="true"
+                      mouseTransparent="true"
+                      focusTraversable="false"
                       wrapText="true"
                       styleClass="area-viewer"
                       prefRowCount="15"/>
