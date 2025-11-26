@@ -45,7 +45,6 @@
             </Separator>
             <TextArea fx:id="message"
                       editable="false"
-                      mouseTransparent="true"
                       focusTraversable="false"
                       wrapText="true"
                       styleClass="area-viewer"

@@ -27,8 +27,8 @@
     -fx-border-radius: 8;
     -fx-background-color: transparent;
     -fx-font-size: 14;
-    -fx-min-width: 450;
-    -fx-max-width: 450;
+    -fx-min-width: 780;
+    -fx-max-width: 780;
     -fx-text-fill: #000000;
     -fx-control-inner-background: transparent;
 }
@@ -44,29 +44,36 @@
     -fx-text-fill: rgba(0, 0, 0, 0.8);
 }
 
-.area-viewer:disabled {
-    -fx-cursor: default;
-    -fx-border-width: 0;
-    -fx-border-color: transparent;
-    -fx-border-radius: 8;
-    -fx-background-color: transparent;
-    -fx-font-size: 14;
-    -fx-min-width: 780;
-    -fx-max-width: 780;
-    -fx-text-fill: #000000;
-    -fx-control-inner-background: #ededed;
-}
 
 .area-viewer:hover {
     -fx-cursor: default;
     -fx-text-fill: #000000;
 }
 
+.area-viewer:focused {
+    -fx-cursor: default;
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-control-inner-background: transparent;
+}
+
+.area-viewer:focused .content {
+    -fx-cursor: default;
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-control-inner-background: transparent;
+}
+
 .area-input .content,
 .area-input .scroll-pane,
 .area-input .viewport {
+    -fx-cursor: default;
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
     -fx-background-color: transparent;
-    -fx-text-fill: #000000;
+    -fx-control-inner-background: transparent;
 }
 
 .close-btn {
