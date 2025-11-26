@@ -1,0 +1,79 @@
+.list-view {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-padding: 0;
+}
+
+.list-view:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.list-cell {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.list-cell:selected {
+    -fx-background-color: transparent;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.main-container {
+    -fx-padding: 20px 15px 15px 20px;
+}
+
+.page-title {
+    -fx-font-size: 28;
+    -fx-font-weight: 800;
+    -fx-text-fill: #03376e;
+}
+
+.page-number {
+    -fx-font-weight: 800;
+    -fx-text-fill: rgba(0, 0, 0, 0.8);
+    -fx-font-size: 12;
+}
+
+.mail-count {
+    -fx-font-weight: 600;
+    -fx-text-fill: rgba(0, 0, 0, 0.8);
+    -fx-font-size: 12;
+    -fx-alignment: CENTER_RIGHT;
+    -fx-padding: 0 0 0 5;
+}
+
+.page-btn {
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+    -fx-background-color: #011f40;
+    -fx-text-fill: rgba(255, 255, 255, 0.8);
+    -fx-background-radius: 20;
+    -fx-font-size: 10;
+    -fx-padding: 3;
+}
+
+.page-btn:hover {
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+    -fx-background-color: #01162c;
+    -fx-text-fill: rgba(255, 255, 255, 1);
+}
+
+.empty-label {
+    -fx-font-size: 24;
+    -fx-font-weight: 800;
+    -fx-text-fill: rgba(0, 0, 0, 0.5);
+}
+
+.alert-loader {
+    -fx-progress-color: #252525; /* color of arc */
+    -fx-background-color: transparent;
+}

@@ -2,9 +2,57 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Button?>
 
-<VBox alignment="CENTER" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.client.controllers.pages.LoginController">
-    <Button onAction="#OnLogin" text="Login"/>
-</VBox>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 
+<?import javafx.scene.effect.DropShadow?>
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.client.controllers.pages.LoginController" spacing="16" stylesheets="@login.css"
+      style="-fx-background-color:#011f40 " alignment="CENTER" onMouseClicked="#RootPaneClick" fx:id="root">
+    <VBox
+            style=" -fx-padding: 32;-fx-background-color: #f0f0f0;-fx-background-radius: 16" spacing="16"
+            stylesheets="@login.css"
+            maxHeight="500"
+            maxWidth="800">
+        <effect>
+            <DropShadow radius="8" color="rgba(0,0,0,0.3)"/>
+        </effect>
+
+        <Label
+                style="-fx-wrap-text: true; -fx-text-fill: #03376e;-fx-font-size: 26; -fx-font-weight:800"
+                text="Kmail"/>
+        <HBox VBox.vgrow="ALWAYS" alignment="CENTER" spacing="16">
+            <HBox alignment="CENTER">
+                <ImageView fitHeight="350.0" fitWidth="400.0" preserveRatio="true">
+                    <image>
+                        <Image url="@/assets/LoginImage.png">
+
+                        </Image>
+                    </image>
+                </ImageView>
+            </HBox>
+            <VBox HBox.hgrow="ALWAYS" alignment="CENTER" style="-fx-padding: 32" spacing="18">
+                <VBox spacing="0">
+                    <Label
+                            style="-fx-wrap-text: true; -fx-text-fill: #03376e;-fx-font-size: 28; -fx-font-weight:800"
+                            text="Bentornato!"/>
+                    <Label
+                            style="-fx-wrap-text: true; -fx-text-fill: #bababa;-fx-font-size: 14; -fx-font-weight:800"
+                            text="Scrivi la tua mail per effettuare il login!"/>
+                </VBox>
+                <VBox spacing="8">
+                    <TextField fx:id="email" styleClass="mail-input" promptText="mail@domain.com"/>
+                    <Button onAction="#OnLogin" text="Accedi" styleClass="login-button"/>
+                </VBox>
+
+            </VBox>
+
+        </HBox>
+
+    </VBox>
+</VBox>
 

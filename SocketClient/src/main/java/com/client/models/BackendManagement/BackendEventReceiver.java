@@ -2,14 +2,14 @@ package com.client.models.BackendManagement;
 
 import com.client.models.AlertManagement.AlertManager;
 import com.client.models.AlertManagement.AlertType;
+import com.client.models.EmailManagement.MailBoxManager;
 import com.client.models.ProgApplication;
+import communication.Mail;
 import communication.Request;
 import communication.Response;
 import utils.ResponseCodes;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,7 +58,7 @@ public class BackendEventReceiver implements Runnable {
 
     public boolean TrySendToRequest(Response<?> response) {
         String id = response.getRequestID();
-        if (pendingRequests.containsKey(id)) {
+        if (id != null && pendingRequests.containsKey(id)) {
             CompletableFuture<Response<?>> callback = pendingRequests.remove(id);
             callback.complete(response);
             return true;
@@ -76,7 +76,6 @@ public class BackendEventReceiver implements Runnable {
     }
 
     private void HandleEvent(Response<?> response) {
-
         if (response.getCode() != ResponseCodes.OK && response.getCode() != ResponseCodes.UPDATE) {
             AlertManager.get().add("Errore", response.getErrorMessage(), AlertType.ERROR);
             return;
@@ -85,17 +84,13 @@ public class BackendEventReceiver implements Runnable {
         //This can be used to handle different "passive-listen" flows
         switch (response.getCode()) {
             case ResponseCodes.UPDATE:
-                HandleEmailUpdate(response.getPayload());
+                MailBoxManager.INSTANCE.mailReceived(response);
                 break;
             default:
                 //Decide if to show a warning in Client UI or just discard
                 break;
 
         }
-    }
-
-    private void HandleEmailUpdate(Object emailUpdateObject) {
-        //Define the EmailUpdateObject and handle Email Update UI Wise
     }
 
     //Throw exception on all pending requests

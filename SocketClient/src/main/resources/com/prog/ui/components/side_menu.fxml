@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Label?>
+
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.control.Button?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<fx:root type="javafx.scene.layout.StackPane" xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml" prefWidth="250.0" maxHeight="Infinity" stylesheets="@side_menu.css"
+>
+    <VBox style="-fx-background-color: #01162c">
+        <effect>
+            <DropShadow offsetX="2" color="rgba(0,0,0,0.4)"/>
+        </effect>
+        <VBox style="-fx-border-width: 0px 0px 1px 0px; -fx-border-color: rgba(200,200,200,0.2); -fx-padding: 10"
+              maxHeight="300" spacing="20"
+              alignment="TOP_CENTER">
+            <ImageView fitHeight="80.0" fitWidth="80.0" preserveRatio="true">
+                <effect>
+                    <DropShadow radius="8" color="rgba(0,0,0,0.8)"/>
+                </effect>
+                <image>
+                    <Image url="@/assets/ProfileImageMale.png">
+
+                    </Image>
+                </image>
+            </ImageView>
+            <Label style="-fx-font-weight: 800; -fx-font-size: 16; -fx-text-fill: rgba(255,255,255,0.8)"
+                   fx:id="email"/>
+        </VBox>
+        <VBox spacing="25" style="-fx-padding: 15px 15px 10px 15px" VBox.vgrow="ALWAYS">
+
+            <VBox alignment="CENTER_LEFT" maxWidth="Infinity" maxHeight="200">
+                <Button maxHeight="100" styleClass="send-button" text="Scrivi" maxWidth="Infinity" userData="SEND"
+                        fx:id="sendMenuVoice"
+                        onAction="#onSendClicked" graphicTextGap="8">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2p-pencil" iconColor="#1b1e23" iconSize="18"/>
+                    </graphic>
+                </Button>
+            </VBox>
+
+            <VBox spacing="5" maxWidth="Infinity">
+                <Button maxHeight="100" styleClass="menu-voice" text="Posta in arrivo" maxWidth="Infinity"
+                        userData="RECEIVED"
+                        fx:id="defaultMenuVoice"
+                        onAction="#onMenuVoiceSelected" graphicTextGap="8">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2i-inbox" iconSize="16"
+                                  styleClass="menu-voice-icon"/>
+                    </graphic>
+                </Button>
+                <Button maxHeight="100" styleClass="menu-voice" text="Inviati" maxWidth="Infinity" userData="SENT"
+                        onAction="#onMenuVoiceSelected" graphicTextGap="8">
+                    <graphic>
+                        <FontIcon iconLiteral="mdi2s-send" iconSize="16"
+                                  styleClass="menu-voice-icon"/>
+                    </graphic>
+                </Button>
+            </VBox>
+
+            <Pane VBox.vgrow="ALWAYS" maxHeight="Infinity" maxWidth="Infinity">
+
+            </Pane>
+            <Button maxHeight="100" styleClass="menu-voice-logout" text="Esci dall'account" maxWidth="Infinity"
+                    onAction="#onLogout"/>
+        </VBox>
+    </VBox>
+</fx:root>

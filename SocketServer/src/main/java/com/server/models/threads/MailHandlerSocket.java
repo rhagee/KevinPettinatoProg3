@@ -63,8 +63,8 @@ public class MailHandlerSocket extends Thread {
             case RequestCodes.AUTH:
                 OnAuth(request);
                 break;
-            case RequestCodes.PAGES:
-                OnPages(request);
+            case RequestCodes.MAILBOX:
+                OnMailbox(request);
                 break;
             case RequestCodes.RECEIVE:
                 OnReceive(request);
@@ -74,6 +74,12 @@ public class MailHandlerSocket extends Thread {
                 break;
             case RequestCodes.DELETE:
                 OnDelete(request);
+                break;
+            case RequestCodes.READ:
+                OnReadUnread(request, true);
+                break;
+            case RequestCodes.UNREAD:
+                OnReadUnread(request, false);
                 break;
             default:
                 OnNotFound(request);
@@ -94,7 +100,7 @@ public class MailHandlerSocket extends Thread {
         String mail = (String) request.getPayload();
         QueryResult<String> result = DatabaseHandler.INSTANCE.authUser(mail);
         if (result.isError()) {
-            LOGGER.log(Level.INFO, "Email : " + mail + " is not a valid account");
+            LOGGER.info("Email : " + mail + " is not a valid account");
             SendObject(new Response<>(request.getRequestID(), "", ResponseCodes.UNAUTHORIZED, result.getMessage()));
             return;
         }
@@ -102,6 +108,8 @@ public class MailHandlerSocket extends Thread {
         String token = result.getPayload();
         this.mail = mail;
         SocketHandler.registerMailHandler(mail, this);
+
+        LOGGER.info("Login with email : " + mail + " successful! Token generated and sent to client.");
         SendObject(new Response<>(request.getRequestID(), token, ResponseCodes.OK));
     }
 
@@ -127,24 +135,19 @@ public class MailHandlerSocket extends Thread {
         SendObject(new Response<>(request.getRequestID(), mailList, ResponseCodes.OK));
     }
 
-    private void OnPages(Request<?> request) {
+    private void OnMailbox(Request<?> request) {
         if (!isAuthenticated(request)) {
             return;
         }
 
-        if (!TypeCheck(request, MailPageRequest.class)) {
+        QueryResult<MailBoxMetadata> mailBoxResult = DatabaseHandler.INSTANCE.getMailBoxMetadata(this.mail);
+        if (mailBoxResult.isError()) {
+            SendObject(new Response<>(request.getRequestID(), 0, ResponseCodes.UNHANDLED, mailBoxResult.getMessage()));
             return;
         }
 
-        MailPageRequest pageRequest = (MailPageRequest) request.getPayload();
-        QueryResult<Integer> pagesNumberResult = DatabaseHandler.INSTANCE.getMailPagesNumber(this.mail, pageRequest);
-        if (pagesNumberResult.isError()) {
-            SendObject(new Response<>(request.getRequestID(), 0, ResponseCodes.UNHANDLED, pagesNumberResult.getMessage()));
-            return;
-        }
-
-        Integer pagesNumber = pagesNumberResult.getPayload();
-        SendObject(new Response<>(request.getRequestID(), pagesNumber, ResponseCodes.OK));
+        MailBoxMetadata mailBoxMetadata = mailBoxResult.getPayload();
+        SendObject(new Response<>(request.getRequestID(), mailBoxMetadata, ResponseCodes.OK));
     }
 
     private void OnSend(Request<?> request) {
@@ -177,6 +180,26 @@ public class MailHandlerSocket extends Thread {
 
         Mail toDelete = (Mail) request.getPayload();
         QueryResult<?> deleteResult = DatabaseHandler.INSTANCE.deleteMail(this.mail, toDelete);
+        if (deleteResult.isError()) {
+            SendObject(new Response<>(request.getRequestID(), 0, ResponseCodes.UNHANDLED, deleteResult.getMessage()));
+            return;
+        }
+
+        SendObject(new Response<String>(request.getRequestID(), deleteResult.getMessage(), ResponseCodes.OK));
+    }
+
+
+    private void OnReadUnread(Request<?> request, boolean read) {
+        if (!isAuthenticated(request)) {
+            return;
+        }
+
+        if (!TypeCheck(request, Mail.class)) {
+            return;
+        }
+
+        Mail toRead = (Mail) request.getPayload();
+        QueryResult<?> deleteResult = DatabaseHandler.INSTANCE.readUnreadMail(this.mail, toRead, read);
         if (deleteResult.isError()) {
             SendObject(new Response<>(request.getRequestID(), 0, ResponseCodes.UNHANDLED, deleteResult.getMessage()));
             return;

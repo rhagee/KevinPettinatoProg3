@@ -9,7 +9,8 @@ public enum Colors {
     YELLOW("#ffd399"),
     BLUE("#a4c7ed"),
     WHITE("#ededed"),
-    LIGHT_DARK("#171717");
+    LIGHT_DARK("#171717"),
+    LIGHT_BLUE("#40AFFF");
 
     private final String color;
 

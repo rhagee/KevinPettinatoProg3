@@ -8,6 +8,8 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.impl.JWTParser;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.server.models.threads.SocketHandler;
 import communication.*;
 import javafx.beans.property.ObjectProperty;
@@ -39,7 +41,15 @@ public enum DatabaseHandler {
     //endregion
 
     //region Statics
-    public static final ObjectMapper MAPPER = new ObjectMapper();
+    public static final ObjectMapper MAPPER;
+
+    //This is needed in order to Serialize/Deserialize LocalDateTime into Timestamps
+    static {
+        MAPPER = new ObjectMapper();
+        MAPPER.registerModule(new JavaTimeModule());
+        MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    }
+
     private static final JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(secret)).withIssuer(issuer).build();
 
     public static File CACHED_DIR;
@@ -394,6 +404,18 @@ public enum DatabaseHandler {
         }
     }
 
+    public synchronized QueryResult<MailBoxMetadata> getMailBoxMetadata(String mail) {
+        QueryResult<MailBoxMetadata> result = new QueryResult<>();
+        MailBox mailBox = getMailBoxInternal(mail);
+        if (mailBox == null) {
+            result.setErrorPayload(null);
+            return result;
+        }
+
+        result.setSuccessPayload(mailBox);
+        return result;
+    }
+
     public synchronized QueryResult<?> readUnreadMail(String mail, Mail toRead, boolean read) {
         QueryResult<?> result = new QueryResult<>();
 
@@ -505,7 +527,7 @@ public enum DatabaseHandler {
         }
 
         Mail newMail = new Mail(smallMail);
-        MailBox mailBox = getMailBox(mail);
+        MailBox mailBox = getMailBoxInternal(mail);
         if (mailBox == null) {
             return null;
         }
@@ -578,12 +600,12 @@ public enum DatabaseHandler {
     }
 
     public synchronized String GenerateToken(String email) throws JWTVerificationException {
-        return JWT.create().withIssuer(issuer).withPayload(email).sign(Algorithm.HMAC256(secret));
+        return JWT.create().withIssuer(issuer).withClaim("email", email).sign(Algorithm.HMAC256(secret));
     }
 
     public synchronized String DecodeToken(String token) throws JWTVerificationException {
         DecodedJWT jwt = jwtVerifier.verify(token);
-        return jwt.getPayload();
+        return jwt.getClaim("email").asString();
     }
 
     public void addAccountsListener(ChangeListener<List<String>> changeListener) {
@@ -600,7 +622,7 @@ public enum DatabaseHandler {
     //endregion
 
     //region MailBox
-    private synchronized MailBox getMailBox(String mail) {
+    private synchronized MailBox getMailBoxInternal(String mail) {
         File mailBox = new File(getMailboxPath(mail));
         try {
             if (!mailBox.exists()) {

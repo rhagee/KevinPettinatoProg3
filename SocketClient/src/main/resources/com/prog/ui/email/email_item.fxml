@@ -1,10 +1,17 @@
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.Region?>
 <HBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.client.controllers.email.EmailItemController" spacing="8" fx:id="root">
-    <VBox>
-        <Label fx:id="title" styleClass="title"/>
-        <Label fx:id="message" wrapText="true"/>
-    </VBox>
-    <Pane HBox.hgrow="ALWAYS"/>
+      fx:controller="com.client.controllers.email.EmailItemController" fx:id="root"
+      stylesheets="@email_item.css" styleClass="row-container"
+      spacing="40" maxWidth="Infinity" onMouseClicked="#onClick" pickOnBounds="true">
+
+    <Label fx:id="userMail" styleClass="mail-label" mouseTransparent="true"/>
+    <HBox spacing="10" HBox.hgrow="ALWAYS" mouseTransparent="true">
+        <Label fx:id="subject" styleClass="subject-label" mouseTransparent="true"/>
+        <Label fx:id="message" styleClass="message-label" mouseTransparent="true"/>
+        <Region HBox.hgrow="ALWAYS" mouseTransparent="true"/>
+        <Label fx:id="dateTime" styleClass="date-label" mouseTransparent="true"/>
+    </HBox>
+
 </HBox>

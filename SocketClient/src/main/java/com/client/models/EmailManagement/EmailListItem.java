@@ -1,13 +1,15 @@
 package com.client.models.EmailManagement;
 
 import com.client.controllers.email.EmailItemController;
+import communication.Mail;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.ListCell;
 
 import java.io.IOException;
 
-public class EmailListItem extends ListCell<EmailItem> {
+public class EmailListItem extends ListCell<Mail> {
     private final Node rootNode;
     private EmailItemController controller;
 
@@ -22,16 +24,18 @@ public class EmailListItem extends ListCell<EmailItem> {
     }
 
     @Override
-    protected void updateItem(EmailItem item, boolean empty) {
-        super.updateItem(item, empty);
-        if (empty || item == null) {
-            setGraphic(null);
-            return;
-        }
+    protected void updateItem(Mail item, boolean empty) {
+        Platform.runLater(() -> {
+            super.updateItem(item, empty);
+            if (empty || item == null) {
+                setGraphic(null);
+                return;
+            }
 
-        controller.bind(item);
-        setText(null);
-        setGraphic(rootNode);
+            controller.bind(item);
+            setText(null);
+            setGraphic(rootNode);
+        });
     }
 
 }

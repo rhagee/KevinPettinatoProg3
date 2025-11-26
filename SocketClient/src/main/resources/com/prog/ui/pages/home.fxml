@@ -2,7 +2,20 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Button?>
 
-<VBox alignment="CENTER" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.client.controllers.pages.HomeController">
-    <Button onAction="#OnLogout" text="Logout"/>
-</VBox>
+<?import javafx.scene.layout.StackPane?>
+
+<?import com.client.controllers.components.SideMenu?>
+<?import com.client.controllers.components.NewMailBox?>
+<?import com.client.controllers.components.MainView?>
+<?import javafx.scene.layout.HBox?>
+<?import com.client.controllers.components.ViewMail?>
+<StackPane alignment="CENTER" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.client.controllers.pages.HomeController">
+    <HBox>
+        <SideMenu fx:id="sideMenu"/>
+        <MainView fx:id="mainView"/>
+    </HBox>
+    <NewMailBox fx:id="newMailBox"/>
+    <ViewMail fx:id="viewMail"/>
+    <!-- <Button onAction="#OnLogout" text="Logout"/> -->
+</StackPane>
