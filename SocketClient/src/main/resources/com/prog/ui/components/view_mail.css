@@ -105,3 +105,20 @@
     -fx-cursor: hand;
     -fx-background-color: #01162c;
 }
+
+.interaction-button-delete {
+    -fx-background-color: #8a0000;
+    -fx-background-radius: 8;
+    -fx-text-fill: #ededed;
+    -fx-font-weight: 800;
+    -fx-padding: 10;
+    -fx-min-width: 150;
+    -fx-max-width: 150;
+    -fx-border-width: 0;
+    -fx-font-size: 12;
+}
+
+.interaction-button-delete:hover {
+    -fx-cursor: hand;
+    -fx-background-color: #5c0000;
+}

@@ -524,6 +524,12 @@ public enum MailBoxManager {
             Platform.runLater(() -> {
                 mailList.remove(selectedMail.getValue());
                 selectedMail.setValue(null);
+                mailListSize.setValue(mailListSize.getValue() - 1);
+                if (status.getValue() == PageStatus.SENT) {
+                    sent.setValue(sent.getValue() - 1);
+                } else {
+                    received.setValue(received.getValue() - 1);
+                }
                 AlertManager.get().add("Eliminazione riuscita", "La mail è stata eliminata con successo!", AlertType.SUCCESS);
             });
         } catch (Exception e) {
