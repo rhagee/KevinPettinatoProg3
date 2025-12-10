@@ -279,6 +279,11 @@ public enum MailBoxManager {
         mode.setValue(NewMode.FORWARD);
     }
 
+    public void onDelete() {
+        Mail toDelete = selectedMail.getValue();
+        RequestDeleteMailInternal(toDelete);
+    }
+
     public void ConsumeMail() {
         consumableMail.setValue(null);
         mode.setValue(NewMode.DEFAULT);
@@ -389,6 +394,13 @@ public enum MailBoxManager {
         BackendManager.INSTANCE.trySubmitRequest(RequestCodes.READ, mail, null);
     }
 
+    private void RequestDeleteMailInternal(Mail mail) {
+        //Just fire the event so Backend gets notified
+        CompletableFuture<Response<?>> onCompleteFuture = new CompletableFuture<>();
+        BackendManager.INSTANCE.trySubmitRequest(RequestCodes.DELETE, mail, onCompleteFuture);
+        onCompleteFuture.thenAccept(onMailDeleted);
+    }
+
     private void RequestUnreadMailInternal(Mail mail) {
         //Just fire the event so Backend gets notified
         BackendManager.INSTANCE.trySubmitRequest(RequestCodes.UNREAD, mail, null);
@@ -491,6 +503,34 @@ public enum MailBoxManager {
             });
         } finally {
             isLoadingPage.setValue(false);
+        }
+    };
+
+
+    private final Consumer<Response<?>> onMailDeleted = response -> {
+
+        if (response.getCode() == ResponseCodes.DISCONNECTED) {
+            return;
+        }
+
+        if (response.getCode() != ResponseCodes.OK) {
+            Platform.runLater(() -> {
+                AlertManager.get().add("Errore", response.getErrorMessage(), AlertType.ERROR);
+            });
+            return;
+        }
+
+        try {
+            Platform.runLater(() -> {
+                mailList.remove(selectedMail.getValue());
+                selectedMail.setValue(null);
+                AlertManager.get().add("Eliminazione riuscita", "La mail è stata eliminata con successo!", AlertType.SUCCESS);
+            });
+        } catch (Exception e) {
+            //This should catch also the bad cast exception
+            Platform.runLater(() -> {
+                AlertManager.get().add("Errore", "Impossibile eliminare la mail", AlertType.ERROR);
+            });
         }
     };
 

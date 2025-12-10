@@ -127,4 +127,9 @@ public class ViewMail extends Component {
     private void onForward() {
         MailBoxManager.INSTANCE.onForward();
     }
+
+    @FXML
+    private void onDelete() {
+        MailBoxManager.INSTANCE.onDelete();
+    }
 }
