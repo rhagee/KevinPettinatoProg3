@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /*
  *
@@ -32,6 +34,8 @@ import java.util.function.Consumer;
 public enum MailBoxManager {
     INSTANCE;
 
+    private final Pattern VALID_EMAIL_ADDRESS_REGEX =
+            Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
     //#region Constants
     public static final int pageSize = 25;
     //#endregion
@@ -137,7 +141,10 @@ public enum MailBoxManager {
     }
 
     public void onLogin(String inputMail) {
-        //TODO: ADD REGEX to check mail
+        if (!CheckMail(inputMail)) {
+            AlertManager.get().add("Errore", "La mail inserita non è valida!", AlertType.ERROR);
+            return;
+        }
         RequestAuthInternal(inputMail);
     }
 
@@ -327,6 +334,12 @@ public enum MailBoxManager {
     //#endregion
 
     //#region PrivateMethods
+
+    private boolean CheckMail(String mail) {
+        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(mail);
+        return matcher.matches();
+    }
+
     private void InitializeMailbox(String mail) {
         if (isInitialized) {
             return;

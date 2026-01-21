@@ -42,6 +42,7 @@ public enum BackendManager implements Runnable {
 
     private String token = null;
 
+
     @Override
     public void run() {
         CreateConnection();
@@ -225,7 +226,7 @@ public enum BackendManager implements Runnable {
                 String id = UUID.randomUUID().toString();
                 Request<Object> request = new Request<>(id, payload, code, token);
                 eventHandler.AddPendingRequest(id, callback);
-                
+
                 out.writeObject(request);
                 out.flush();
             } catch (IOException e) {
