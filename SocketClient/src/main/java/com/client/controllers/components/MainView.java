@@ -6,6 +6,7 @@ import com.client.models.EmailManagement.MailBoxManager;
 import com.client.models.EmailManagement.PageStatus;
 import communication.Mail;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -47,39 +48,58 @@ public class MainView extends Component {
         ChangePageSettings(MailBoxManager.INSTANCE.pageNumberProperty().getValue());
         OnMailListUpdated(MailBoxManager.INSTANCE.mailListSizeProperty().getValue());
 
-        MailBoxManager.INSTANCE.statusProperty().addListener((observable, oldValue, newValue) -> {
+        //Page status listener
+        ChangeListener<PageStatus> pageStatusListener = (observable, oldValue, newValue) -> {
             ChangeTitle(newValue);
             ChangePageSettings(MailBoxManager.INSTANCE.pageNumberProperty().getValue());
-        });
+        };
+        MailBoxManager.INSTANCE.statusProperty().addListener(pageStatusListener);
+        MailBoxManager.INSTANCE.addDisposable(() -> MailBoxManager.INSTANCE.statusProperty().removeListener(pageStatusListener));
 
-        MailBoxManager.INSTANCE.pageNumberProperty().addListener((observable, oldValue, newValue) -> {
+
+        //Page number listener
+        ChangeListener<Number> pageNumberListener = (observable, oldValue, newValue) -> {
             ChangePageSettings(newValue);
-        });
+        };
+        MailBoxManager.INSTANCE.pageNumberProperty().addListener(pageNumberListener);
+        MailBoxManager.INSTANCE.addDisposable(() -> MailBoxManager.INSTANCE.pageNumberProperty().removeListener(pageNumberListener));
 
-        MailBoxManager.INSTANCE.receivedProperty().addListener((observable, oldValue, newValue) -> {
+        //Received listener
+        ChangeListener<Number> receivedListener = (observable, oldValue, newValue) -> {
             ChangePageSettings(MailBoxManager.INSTANCE.pageNumberProperty().getValue());
-        });
+        };
+        MailBoxManager.INSTANCE.receivedProperty().addListener(receivedListener);
+        MailBoxManager.INSTANCE.addDisposable(() -> MailBoxManager.INSTANCE.receivedProperty().removeListener(receivedListener));
 
-        MailBoxManager.INSTANCE.incrementProperty().addListener((observable, oldValue, newValue) -> {
+        ChangeListener<Number> incrementListener = (observable, oldValue, newValue) -> {
             ChangePageSettings(MailBoxManager.INSTANCE.pageNumberProperty().getValue());
-        });
+        };
+        MailBoxManager.INSTANCE.incrementProperty().addListener(incrementListener);
+        MailBoxManager.INSTANCE.addDisposable(() -> MailBoxManager.INSTANCE.incrementProperty().removeListener(incrementListener));
 
-        MailBoxManager.INSTANCE.sentProperty().addListener((observable, oldValue, newValue) -> {
+        ChangeListener<Number> sentListener = (observable, oldValue, newValue) -> {
             ChangePageSettings(MailBoxManager.INSTANCE.pageNumberProperty().getValue());
-        });
+        };
+        MailBoxManager.INSTANCE.sentProperty().addListener(sentListener);
+        MailBoxManager.INSTANCE.addDisposable(() -> MailBoxManager.INSTANCE.sentProperty().removeListener(sentListener));
 
-        MailBoxManager.INSTANCE.isLoadingPageProperty().addListener((observable, oldValue, newValue) -> {
+        ChangeListener<Boolean> loadingPageListener = (observable, oldValue, newValue) -> {
             if (newValue) {
                 OnRefreshStarted();
             } else {
                 OnRefreshEnded();
             }
-        });
+        };
+        MailBoxManager.INSTANCE.isLoadingPageProperty().addListener(loadingPageListener);
+        MailBoxManager.INSTANCE.addDisposable(() -> MailBoxManager.INSTANCE.isLoadingPageProperty().removeListener(loadingPageListener));
 
         OnMailListUpdated(MailBoxManager.INSTANCE.mailListSizeProperty().getValue());
-        MailBoxManager.INSTANCE.mailListSizeProperty().addListener((observable, oldValue, newValue) -> {
+
+        ChangeListener<Number> mailListSizeListener = (observable, oldValue, newValue) -> {
             OnMailListUpdated(newValue);
-        });
+        };
+        MailBoxManager.INSTANCE.mailListSizeProperty().addListener(mailListSizeListener);
+        MailBoxManager.INSTANCE.addDisposable(() -> MailBoxManager.INSTANCE.mailListSizeProperty().removeListener(mailListSizeListener));
 
         emailList.setItems(MailBoxManager.INSTANCE.getMailList());
         emailList.setCellFactory(_ -> new EmailListItem());

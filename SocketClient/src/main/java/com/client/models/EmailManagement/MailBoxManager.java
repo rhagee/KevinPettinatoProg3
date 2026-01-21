@@ -58,6 +58,8 @@ public enum MailBoxManager {
     private BooleanProperty newMailOpen = new SimpleBooleanProperty(false);
     //#endregion
 
+    private List<Runnable> disposer = new ArrayList<>();
+
     //#region Local
     private boolean isInitialized = false;
     //#endregion
@@ -129,6 +131,11 @@ public enum MailBoxManager {
     //#endregion
 
     //#region PublicMethods
+
+    public void addDisposable(Runnable runnable) {
+        disposer.add(runnable);
+    }
+
     public void onLogin(String inputMail) {
         //TODO: ADD REGEX to check mail
         RequestAuthInternal(inputMail);
@@ -144,6 +151,7 @@ public enum MailBoxManager {
     }
 
     public void onLogout() {
+        RequestLogoutInternal();
         Platform.runLater(() -> {
             BackendManager.INSTANCE.clearToken();
             SceneTransitions.SlideRight(SceneNames.LOGIN);
@@ -332,6 +340,7 @@ public enum MailBoxManager {
     }
 
     private void Clear() {
+        ClearDisposer();
         mail.setValue(null);
         status.setValue(PageStatus.RECEIVED);
         toRead.setValue(0);
@@ -343,7 +352,13 @@ public enum MailBoxManager {
         isLoadingPage.setValue(false);
         selectedMail.setValue(null);
         consumableMail.setValue(null);
+
         this.isInitialized = false;
+    }
+
+    private void ClearDisposer() {
+        disposer.forEach(Runnable::run);
+        disposer.clear();
     }
 
     private void setConsumableMail() {
@@ -392,6 +407,11 @@ public enum MailBoxManager {
     private void RequestReadMailInternal(Mail mail) {
         //Just fire the event so Backend gets notified
         BackendManager.INSTANCE.trySubmitRequest(RequestCodes.READ, mail, null);
+    }
+
+    private void RequestLogoutInternal() {
+        //Just fire the event so Backend gets notified
+        BackendManager.INSTANCE.trySubmitRequest(RequestCodes.LOGOUT, mail.getValue(), null);
     }
 
     private void RequestDeleteMailInternal(Mail mail) {

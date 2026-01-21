@@ -8,6 +8,7 @@ import com.client.models.EmailManagement.PageStatus;
 import communication.Mail;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
@@ -52,28 +53,41 @@ public class NewMailBox extends Component {
     }
 
     private void initializeBindings() {
-        MailBoxManager.INSTANCE.getNewMailOpenProperty().addListener((observable, oldValue, newValue) -> {
+
+        ChangeListener<Boolean> newMailOpenListener = (observable, oldValue, newValue) -> {
+            if (oldValue == newValue) {
+                return;
+            }
+
             if (newValue) {
                 Show(NewMode.DEFAULT);
             } else {
                 Hide();
             }
-        });
+        };
+        MailBoxManager.INSTANCE.getNewMailOpenProperty().addListener(newMailOpenListener);
+        MailBoxManager.INSTANCE.addDisposable(() -> MailBoxManager.INSTANCE.getNewMailOpenProperty().removeListener(newMailOpenListener));
 
-        MailBoxManager.INSTANCE.modeProperty().addListener((observable, oldValue, newValue) -> {
+
+        ChangeListener<NewMode> modeListener = (observable, oldValue, newValue) -> {
             //We ignore Default here
             if (newValue == NewMode.DEFAULT) {
                 return;
             }
 
             Show(newValue);
-        });
+        };
+        MailBoxManager.INSTANCE.modeProperty().addListener(modeListener);
+        MailBoxManager.INSTANCE.addDisposable(() -> MailBoxManager.INSTANCE.modeProperty().removeListener(modeListener));
 
         BooleanProperty isSendingProp = MailBoxManager.INSTANCE.isSendingMailProperty();
         EnableButton(isSendingProp.getValue());
-        isSendingProp.addListener((observable, oldValue, newValue) -> {
+
+        ChangeListener<Boolean> sendingListener = (observable, oldValue, newValue) -> {
             EnableButton(newValue);
-        });
+        };
+        isSendingProp.addListener(sendingListener);
+        MailBoxManager.INSTANCE.addDisposable(() -> isSendingProp.removeListener(sendingListener));
     }
 
     private void EnableButton(boolean isSending) {
@@ -210,5 +224,10 @@ public class NewMailBox extends Component {
     private void onClose() {
         clearOnNextOpen = false;
         MailBoxManager.INSTANCE.closeNewMailModal();
+    }
+
+    @FXML
+    private void terminate() {
+        System.out.println("TERMINATE!");
     }
 }
