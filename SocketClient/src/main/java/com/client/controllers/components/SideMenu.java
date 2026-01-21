@@ -2,6 +2,7 @@ package com.client.controllers.components;
 
 import com.client.models.EmailManagement.MailBoxManager;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -36,10 +37,15 @@ public class SideMenu extends Component {
     private void initializeBindings() {
 
         email.textProperty().bind(MailBoxManager.INSTANCE.mailProperty());
+        MailBoxManager.INSTANCE.addDisposable(() -> email.textProperty().unbind());
+
         OnToReadChanged(MailBoxManager.INSTANCE.toReadProperty().getValue());
-        MailBoxManager.INSTANCE.toReadProperty().addListener((observable, oldValue, newValue) -> {
+
+        ChangeListener<Number> readListener = (observable, oldValue, newValue) -> {
             OnToReadChanged(newValue);
-        });
+        };
+        MailBoxManager.INSTANCE.toReadProperty().addListener(readListener);
+        MailBoxManager.INSTANCE.addDisposable(() -> MailBoxManager.INSTANCE.toReadProperty().removeListener(readListener));
     }
 
     private void OnToReadChanged(Number newValue) {
@@ -64,7 +70,7 @@ public class SideMenu extends Component {
 
     @FXML
     private void onSendClicked(ActionEvent event) {
-    MailBoxManager.INSTANCE.openNewMailModal();
+        MailBoxManager.INSTANCE.openNewMailModal();
     }
 
     private void selectButtonInternal(Button clickedButton, boolean forceRefresh) {

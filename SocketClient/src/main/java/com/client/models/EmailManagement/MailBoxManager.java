@@ -58,6 +58,8 @@ public enum MailBoxManager {
     private BooleanProperty newMailOpen = new SimpleBooleanProperty(false);
     //#endregion
 
+    private List<Runnable> disposer = new ArrayList<>();
+
     //#region Local
     private boolean isInitialized = false;
     //#endregion
@@ -129,6 +131,11 @@ public enum MailBoxManager {
     //#endregion
 
     //#region PublicMethods
+
+    public void addDisposable(Runnable runnable) {
+        disposer.add(runnable);
+    }
+
     public void onLogin(String inputMail) {
         //TODO: ADD REGEX to check mail
         RequestAuthInternal(inputMail);
@@ -144,6 +151,7 @@ public enum MailBoxManager {
     }
 
     public void onLogout() {
+        RequestLogoutInternal();
         Platform.runLater(() -> {
             BackendManager.INSTANCE.clearToken();
             SceneTransitions.SlideRight(SceneNames.LOGIN);
@@ -279,6 +287,11 @@ public enum MailBoxManager {
         mode.setValue(NewMode.FORWARD);
     }
 
+    public void onDelete() {
+        Mail toDelete = selectedMail.getValue();
+        RequestDeleteMailInternal(toDelete);
+    }
+
     public void ConsumeMail() {
         consumableMail.setValue(null);
         mode.setValue(NewMode.DEFAULT);
@@ -327,6 +340,7 @@ public enum MailBoxManager {
     }
 
     private void Clear() {
+        ClearDisposer();
         mail.setValue(null);
         status.setValue(PageStatus.RECEIVED);
         toRead.setValue(0);
@@ -338,7 +352,13 @@ public enum MailBoxManager {
         isLoadingPage.setValue(false);
         selectedMail.setValue(null);
         consumableMail.setValue(null);
+
         this.isInitialized = false;
+    }
+
+    private void ClearDisposer() {
+        disposer.forEach(Runnable::run);
+        disposer.clear();
     }
 
     private void setConsumableMail() {
@@ -387,6 +407,18 @@ public enum MailBoxManager {
     private void RequestReadMailInternal(Mail mail) {
         //Just fire the event so Backend gets notified
         BackendManager.INSTANCE.trySubmitRequest(RequestCodes.READ, mail, null);
+    }
+
+    private void RequestLogoutInternal() {
+        //Just fire the event so Backend gets notified
+        BackendManager.INSTANCE.trySubmitRequest(RequestCodes.LOGOUT, mail.getValue(), null);
+    }
+
+    private void RequestDeleteMailInternal(Mail mail) {
+        //Just fire the event so Backend gets notified
+        CompletableFuture<Response<?>> onCompleteFuture = new CompletableFuture<>();
+        BackendManager.INSTANCE.trySubmitRequest(RequestCodes.DELETE, mail, onCompleteFuture);
+        onCompleteFuture.thenAccept(onMailDeleted);
     }
 
     private void RequestUnreadMailInternal(Mail mail) {
@@ -491,6 +523,40 @@ public enum MailBoxManager {
             });
         } finally {
             isLoadingPage.setValue(false);
+        }
+    };
+
+
+    private final Consumer<Response<?>> onMailDeleted = response -> {
+
+        if (response.getCode() == ResponseCodes.DISCONNECTED) {
+            return;
+        }
+
+        if (response.getCode() != ResponseCodes.OK) {
+            Platform.runLater(() -> {
+                AlertManager.get().add("Errore", response.getErrorMessage(), AlertType.ERROR);
+            });
+            return;
+        }
+
+        try {
+            Platform.runLater(() -> {
+                mailList.remove(selectedMail.getValue());
+                selectedMail.setValue(null);
+                mailListSize.setValue(mailListSize.getValue() - 1);
+                if (status.getValue() == PageStatus.SENT) {
+                    sent.setValue(sent.getValue() - 1);
+                } else {
+                    received.setValue(received.getValue() - 1);
+                }
+                AlertManager.get().add("Eliminazione riuscita", "La mail è stata eliminata con successo!", AlertType.SUCCESS);
+            });
+        } catch (Exception e) {
+            //This should catch also the bad cast exception
+            Platform.runLater(() -> {
+                AlertManager.get().add("Errore", "Impossibile eliminare la mail", AlertType.ERROR);
+            });
         }
     };
 

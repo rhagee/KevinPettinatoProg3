@@ -224,9 +224,8 @@ public enum BackendManager implements Runnable {
 
                 String id = UUID.randomUUID().toString();
                 Request<Object> request = new Request<>(id, payload, code, token);
-                if (callback != null) {
-                    eventHandler.AddPendingRequest(id, callback);
-                }
+                eventHandler.AddPendingRequest(id, callback);
+                
                 out.writeObject(request);
                 out.flush();
             } catch (IOException e) {

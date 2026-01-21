@@ -60,7 +60,11 @@ public class BackendEventReceiver implements Runnable {
         String id = response.getRequestID();
         if (id != null && pendingRequests.containsKey(id)) {
             CompletableFuture<Response<?>> callback = pendingRequests.remove(id);
-            callback.complete(response);
+
+            if (callback != null) {
+                callback.complete(response);
+            }
+
             return true;
         }
 
@@ -68,6 +72,11 @@ public class BackendEventReceiver implements Runnable {
     }
 
     public void AddPendingRequest(String id, CompletableFuture<Response<?>> callback) {
+        if (callback == null) {
+            pendingRequests.put(id, new CompletableFuture<>());
+            return;
+        }
+
         pendingRequests.put(id, callback);
     }
 

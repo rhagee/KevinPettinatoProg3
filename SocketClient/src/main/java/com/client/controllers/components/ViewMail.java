@@ -6,6 +6,7 @@ import com.client.models.EmailManagement.MailBoxManager;
 import com.client.models.EmailManagement.PageStatus;
 import communication.Mail;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -50,14 +51,19 @@ public class ViewMail extends Component {
     }
 
     private void initializeBindings() {
-        MailBoxManager.INSTANCE.getSelectedMailProperty().addListener((observable, oldValue, newValue) -> {
+
+
+        ChangeListener<Mail> selectedMailListener = (observable, oldValue, newValue) -> {
             if (newValue != null) {
                 Show();
                 PopulateFields(newValue);
             } else {
                 Hide();
             }
-        });
+        };
+
+        MailBoxManager.INSTANCE.getSelectedMailProperty().addListener(selectedMailListener);
+        MailBoxManager.INSTANCE.addDisposable(() -> MailBoxManager.INSTANCE.getSelectedMailProperty().removeListener(selectedMailListener));
     }
 
 
@@ -126,5 +132,10 @@ public class ViewMail extends Component {
     @FXML
     private void onForward() {
         MailBoxManager.INSTANCE.onForward();
+    }
+
+    @FXML
+    private void onDelete() {
+        MailBoxManager.INSTANCE.onDelete();
     }
 }

@@ -55,6 +55,7 @@
                 <Button styleClass="interaction-button" text="Rispondi a tutti" fx:id="replyAll"
                         onAction="#onReplyAll"/>
                 <Button styleClass="interaction-button" text="Inoltra" fx:id="forward" onAction="#onForward"/>
+                <Button styleClass="interaction-button-delete" text="Elimina" fx:id="delete" onAction="#onDelete"/>
             </HBox>
 
         </VBox>

@@ -81,6 +81,9 @@ public class MailHandlerSocket extends Thread {
             case RequestCodes.UNREAD:
                 OnReadUnread(request, false);
                 break;
+            case RequestCodes.LOGOUT:
+                OnLogout(request);
+                break;
             default:
                 OnNotFound(request);
                 break;
@@ -113,6 +116,15 @@ public class MailHandlerSocket extends Thread {
         SendObject(new Response<>(request.getRequestID(), token, ResponseCodes.OK));
     }
 
+
+    private void OnLogout(Request<?> request) {
+        SocketHandler.unregisterMailHandler(this.mail, this);
+        LOGGER.info("Logout with email : " + mail + " successful!");
+        mail = null;
+        SendObject(new Response<>(request.getRequestID(), null, ResponseCodes.OK));
+    }
+
+
     private void OnReceive(Request<?> request) {
         if (!isAuthenticated(request)) {
             return;
@@ -122,16 +134,21 @@ public class MailHandlerSocket extends Thread {
             return;
         }
 
+
         MailPageRequest pageRequest = (MailPageRequest) request.getPayload();
 
+        String receivedSentString = pageRequest.isFromReceived() ? "Received" : "Sent";
+        LOGGER.info(this.mail + " - Requested " + receivedSentString + " page with start: " + pageRequest.getStart() + " and quantity: " + pageRequest.getQuantity());
         QueryResult<List<Mail>> mailListResult = DatabaseHandler.INSTANCE.getMailPage(this.mail, pageRequest);
         if (mailListResult.isError()) {
+            LOGGER.warning(this.mail + " - Failed requesting " + receivedSentString + " page with error: " + mailListResult.getMessage());
             SendObject(new Response<>(request.getRequestID(), null, ResponseCodes.UNHANDLED, mailListResult.getMessage()));
             return;
         }
 
         List<Mail> mailList = mailListResult.getPayload();
 
+        LOGGER.info(this.mail + " - Success requesting " + receivedSentString + " page ");
         SendObject(new Response<>(request.getRequestID(), mailList, ResponseCodes.OK));
     }
 
@@ -140,12 +157,15 @@ public class MailHandlerSocket extends Thread {
             return;
         }
 
+        LOGGER.info(this.mail + " - Requested his mailbox metadata");
         QueryResult<MailBoxMetadata> mailBoxResult = DatabaseHandler.INSTANCE.getMailBoxMetadata(this.mail);
         if (mailBoxResult.isError()) {
+            LOGGER.warning(this.mail + " - Failed getting his mailbox metadata with error: " + mailBoxResult.getMessage());
             SendObject(new Response<>(request.getRequestID(), 0, ResponseCodes.UNHANDLED, mailBoxResult.getMessage()));
             return;
         }
 
+        LOGGER.info(this.mail + " - Success getting his mailbox metadata");
         MailBoxMetadata mailBoxMetadata = mailBoxResult.getPayload();
         SendObject(new Response<>(request.getRequestID(), mailBoxMetadata, ResponseCodes.OK));
     }
@@ -159,13 +179,16 @@ public class MailHandlerSocket extends Thread {
             return;
         }
 
+        LOGGER.info(this.mail + " - Trying to send an email");
         SmallMail toSend = (SmallMail) request.getPayload();
         QueryResult<Mail> sendResult = DatabaseHandler.INSTANCE.sendMail(toSend);
         if (sendResult.isError()) {
+            LOGGER.warning(this.mail + " - Failed sending an email with error: " + sendResult.getMessage());
             SendObject(new Response<>(request.getRequestID(), 0, ResponseCodes.UNHANDLED, sendResult.getMessage()));
             return;
         }
 
+        LOGGER.info(this.mail + " - Email sent with success");
         SendObject(new Response<>(request.getRequestID(), sendResult.getPayload(), ResponseCodes.OK));
     }
 
@@ -178,13 +201,16 @@ public class MailHandlerSocket extends Thread {
             return;
         }
 
+        LOGGER.info(this.mail + " - Trying to delete an email");
         Mail toDelete = (Mail) request.getPayload();
         QueryResult<?> deleteResult = DatabaseHandler.INSTANCE.deleteMail(this.mail, toDelete);
         if (deleteResult.isError()) {
+            LOGGER.warning(this.mail + " - Failed deleting an email with error: " + deleteResult.getMessage());
             SendObject(new Response<>(request.getRequestID(), 0, ResponseCodes.UNHANDLED, deleteResult.getMessage()));
             return;
         }
 
+        LOGGER.info(this.mail + " - Email deleted with success");
         SendObject(new Response<String>(request.getRequestID(), deleteResult.getMessage(), ResponseCodes.OK));
     }
 
@@ -198,14 +224,18 @@ public class MailHandlerSocket extends Thread {
             return;
         }
 
+        String readUnreadString = read ? "read" : "unread";
+        LOGGER.info(this.mail + " - Trying to " + readUnreadString + " an email");
         Mail toRead = (Mail) request.getPayload();
-        QueryResult<?> deleteResult = DatabaseHandler.INSTANCE.readUnreadMail(this.mail, toRead, read);
-        if (deleteResult.isError()) {
-            SendObject(new Response<>(request.getRequestID(), 0, ResponseCodes.UNHANDLED, deleteResult.getMessage()));
+        QueryResult<?> readUnreadResult = DatabaseHandler.INSTANCE.readUnreadMail(this.mail, toRead, read);
+        if (readUnreadResult.isError()) {
+            LOGGER.info(this.mail + " - Failed to " + readUnreadString + " an email with error: " + readUnreadResult.getMessage());
+            SendObject(new Response<>(request.getRequestID(), 0, ResponseCodes.UNHANDLED, readUnreadResult.getMessage()));
             return;
         }
 
-        SendObject(new Response<String>(request.getRequestID(), deleteResult.getMessage(), ResponseCodes.OK));
+        LOGGER.info(this.mail + " - Success to " + readUnreadString + " an email");
+        SendObject(new Response<String>(request.getRequestID(), readUnreadResult.getMessage(), ResponseCodes.OK));
     }
 
     private boolean TypeCheck(Request<?> request, Class c) {
