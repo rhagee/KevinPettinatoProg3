@@ -8,5 +8,6 @@ public enum RequestCodes {
     MAILBOX,
     DELETE,
     READ,
-    UNREAD
+    UNREAD,
+    LOGOUT
 }

@@ -81,6 +81,9 @@ public class MailHandlerSocket extends Thread {
             case RequestCodes.UNREAD:
                 OnReadUnread(request, false);
                 break;
+            case RequestCodes.LOGOUT:
+                OnLogout(request);
+                break;
             default:
                 OnNotFound(request);
                 break;
@@ -112,6 +115,15 @@ public class MailHandlerSocket extends Thread {
         LOGGER.info("Login with email : " + mail + " successful! Token generated and sent to client.");
         SendObject(new Response<>(request.getRequestID(), token, ResponseCodes.OK));
     }
+
+
+    private void OnLogout(Request<?> request) {
+        SocketHandler.unregisterMailHandler(this.mail, this);
+        LOGGER.info("Logout with email : " + mail + " successful!");
+        mail = null;
+        SendObject(new Response<>(request.getRequestID(), null, ResponseCodes.OK));
+    }
+
 
     private void OnReceive(Request<?> request) {
         if (!isAuthenticated(request)) {
